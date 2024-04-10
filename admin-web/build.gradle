@@ -22,12 +22,45 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation("org.yaml:snakeyaml:2.1")
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-actuator'
+    implementation 'org.springframework.boot:spring-boot-actuator-autoconfigure'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation "org.springframework.boot:spring-boot-starter-security"
+
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "org.springframework.security:spring-security-oauth2-authorization-server:1.0.2"
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'com.alibaba:fastjson:2.0.20'
+    implementation 'com.google.guava:guava:32.1.2-jre'
+    implementation 'org.ansj:ansj_seg:5.1.6'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.74'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    testImplementation 'org.projectlombok:lombok:1.18.26'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.28'
+    implementation 'org.postgresql:postgresql'
+
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'com.googlecode.log4jdbc:log4jdbc:1.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'jakarta.json:jakarta.json-api:2.1.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    implementation "io.minio:minio:8.5.5"
+    implementation 'com.tencentcloudapi:tencentcloud-sdk-java:3.1.683'
+    implementation group: 'com.github.houbb', name: 'opencc4j', version: '1.8.1'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
 tasks.named('test') {
