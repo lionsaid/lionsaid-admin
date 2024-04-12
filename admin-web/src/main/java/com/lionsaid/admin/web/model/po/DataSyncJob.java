@@ -22,4 +22,8 @@ public class DataSyncJob {
     private String sourceSql;
     private String targetTable;
     private Long target;
+    private String targetId;
+    private String jobName;
+    private String jobModel;
+
 }

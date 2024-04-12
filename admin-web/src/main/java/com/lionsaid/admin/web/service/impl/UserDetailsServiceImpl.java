@@ -25,8 +25,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (optionalUser.isEmpty()) {
             throw new LionSaidException("用户名或密码错误", 4000001);
         }
-        //TODO 根据用户查询权限信息 添加到LoginUser中
-        //封装成UserDetails对象返回
         return optionalUser.get();
     }
 }

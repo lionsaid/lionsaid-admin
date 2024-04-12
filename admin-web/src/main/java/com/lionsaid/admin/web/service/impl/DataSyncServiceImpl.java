@@ -2,6 +2,7 @@ package com.lionsaid.admin.web.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.google.common.collect.Lists;
 import com.lionsaid.admin.web.model.po.DataSyncDataSource;
 import com.lionsaid.admin.web.model.po.DataSyncJob;
 import com.lionsaid.admin.web.model.po.DataSyncLog;
@@ -11,12 +12,16 @@ import com.lionsaid.admin.web.repository.DataSyncLogRepository;
 import com.lionsaid.admin.web.service.DataSyncService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSetMetaData;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -56,11 +61,30 @@ public class DataSyncServiceImpl implements DataSyncService {
                     String sql = "";
                     Object[] args = new Object[0];
                     try {
-                        sql = "INSERT INTO " + dataSyncJob.getTargetTable() + " (" + result.keySet().stream().map(o -> "`" + o + "`").collect(Collectors.joining(",")) + ")\n" +
-                                "VALUES (" + result.keySet().stream().map(o -> "?").collect(Collectors.joining(",")) + ");\n";
-                        args = result.values().toArray();
-                        // 执行插入操作...
-                        targetjdbcTemplate.update(sql, args);
+                        ArrayList<@Nullable String> ids = Lists.newArrayList();
+                        Arrays.stream(dataSyncJob.getTargetId().split(",")).forEach(o -> {
+                            ids.add(result.getString(o));
+                        });
+                        Long count = 0L;
+                        if (StringUtils.isNotEmpty(dataSyncJob.getTargetId())) {
+                            count = targetjdbcTemplate.queryForObject("SELECT COUNT(1) FROM  " + dataSyncJob.getTargetTable() + " WHERE " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> "`" + o + "`=?").collect(Collectors.joining("  and ")), Long.class, ids.toArray());
+                        }
+                        if (count > 0) {
+                            sql = "update  " + dataSyncJob.getTargetTable() + " set " + result.keySet().stream().map(o -> "`" + o + "`=? ").collect(Collectors.joining(",")) + " where "
+                                    + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> "`" + o + "`=?").collect(Collectors.joining("  and "));
+                            ArrayList<@Nullable Object> arrayList = Lists.newArrayList();
+                            arrayList.addAll(result.values());
+                            arrayList.addAll(ids);
+                            args = arrayList.toArray();
+                            // 执行更新操作...
+                            targetjdbcTemplate.update(sql, args);
+                        } else {
+                            sql = "INSERT INTO " + dataSyncJob.getTargetTable() + " (" + result.keySet().stream().map(o -> "`" + o + "`").collect(Collectors.joining(",")) + ")\n" +
+                                    "VALUES (" + result.keySet().stream().map(o -> "?").collect(Collectors.joining(",")) + ");\n";
+                            args = result.values().toArray();
+                            // 执行插入操作...
+                            targetjdbcTemplate.update(sql, args);
+                        }
                         success.getAndSet(success.get() + 1);
                         // 记录日志
                     } catch (Exception e) {

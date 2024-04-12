@@ -75,6 +75,8 @@ step 1、
 -- 向系统中插入一个新的数据源，用于数据同步。
 INSERT INTO data_sync_data_source (id, driver_class_name, password, url, username)
 VALUES (1000000, 'com.mysql.cj.jdbc.Driver', 'password', 'jdbc:mysql://localhost:3306/database?', 'username');
+INSERT INTO data_sync_data_source (id, driver_class_name, password, url, username)
+VALUES (1000001, 'com.mysql.cj.jdbc.Driver', 'password', 'jdbc:mysql://localhost:3306/database?', 'username');
 
 ```
 
@@ -84,7 +86,7 @@ step 2、
 ```sql
 -- 定义一个新的任务用于数据同步，指定源数据源、源 SQL 查询、目标数据源和目标表。
 INSERT INTO data_sync_job (id, source, source_sql, target, target_table)
-VALUES (100000, <source_data_source_id>, 'select * from sys_grid_data', <target_data_source_id>, 'target_table_name');
+VALUES (100000, <source_data_source_id>, 'select name,date from sys_grid_data where date>(select max(date) from sys_grid_data), <target_data_source_id>, 'sys_grid_data_2024');
 
 ```
 
@@ -98,7 +100,7 @@ step 3、
 @Scheduled(cron = "0 15 6 * * ?")
 public void syncData() {
     // 调用数据同步服务执行定义的任务。
-    dataSyncService.dataSync( < data_sync_job_id >);
+    dataSyncService.dataSync( 100000);
 }
 
 ```
