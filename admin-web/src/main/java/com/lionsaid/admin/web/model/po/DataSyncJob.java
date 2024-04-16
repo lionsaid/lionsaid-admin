@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class DataSyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
-    @SequenceGenerator(name = "id_generator", sequenceName = "your_sequence_name", allocationSize = 1, initialValue = 100000)
+    @SequenceGenerator(name = "id_generator", sequenceName = "data_sync_sequence_name", allocationSize = 1, initialValue = 100000)
     @Column(name = "id", nullable = false)
     private Long id;
     private Long source;

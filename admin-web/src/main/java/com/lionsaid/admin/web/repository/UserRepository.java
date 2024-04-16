@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Modifying
     @Query("update User u set u.password = ?1 where u.username = ?2 or u.email = ?3")

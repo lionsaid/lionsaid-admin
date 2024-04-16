@@ -11,16 +11,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "data_sync_data_source")
-public class DataSyncDataSource {
+@Table(name = "sys_scheduled_task")
+public class ScheduledTask {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
-    @SequenceGenerator(name = "id_generator", sequenceName = "data_sync_sequence_name", allocationSize = 1, initialValue = 100000)
+    @SequenceGenerator(name = "id_generator", sequenceName = "scheduled_task_id", allocationSize = 1, initialValue = 100000)
     @Column(name = "id", nullable = false)
     private Long id;
-    private String url;
-    private String password;
-    private String username;
-    private String driverClassName;
-    private String sourceType;
+    private String name;
+    private String cron;
+    private String taskType;
+    @Column(nullable = false,columnDefinition = "0停止 1开始")
+    private Integer taskStatus;
+    private String taskInfo;
 }

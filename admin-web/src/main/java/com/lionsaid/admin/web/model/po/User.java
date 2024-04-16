@@ -19,13 +19,13 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "system_user", indexes = {
+@Table(name = "sys_user", indexes = {
         @Index(name = "idx_user_username_unq", columnList = "username", unique = true)
 })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
-    @SequenceGenerator(name = "id_generator", sequenceName = "your_sequence_name", allocationSize = 1, initialValue = 100000)
+    @SequenceGenerator(name = "id_generator", sequenceName = "user_id_generator", allocationSize = 1, initialValue = 100000)
     @Column(name = "id", nullable = false)
     private Long id;
 

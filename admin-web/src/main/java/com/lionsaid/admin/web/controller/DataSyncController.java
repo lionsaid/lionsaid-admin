@@ -18,22 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/DataSync")
+@RequestMapping("/dataSync")
 public class DataSyncController {
-    private final DataSyncService logService;
-
+    private final DataSyncService dataSyncService;
 
     /**
      * @param id
      * @return
      */
-   // @PreAuthorize("hasAnyAuthority('log_get','administration')")
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseResult> get(HttpServletRequest request, @PathVariable Long id) {
-        log.info("get {}", id);
-        logService.dataSync(id);
-        return ResponseEntity.ok(ResponseResult.success(""));
+    @GetMapping("startJob")
+    public ResponseEntity<String> get(HttpServletRequest request, Long id) {
+        log.error("startJob {}", id);
+        dataSyncService.dataSync(id);
+        return ResponseEntity.ok("ok");
     }
-
 
 }
