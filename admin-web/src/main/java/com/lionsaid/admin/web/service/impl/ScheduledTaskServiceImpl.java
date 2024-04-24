@@ -29,8 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -42,7 +41,6 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
     private final StringRedisTemplate redisTemplate;
     private final RedissonClient redissonClient;
     private final ScheduledTaskLogService scheduledTaskLogService;
-
     private static Map<String, ScheduledFuture<?>> scheduledTasks = Maps.newConcurrentMap();
 
     @Scheduled(fixedRate = 60000) // 每分钟执行一次
@@ -133,23 +131,33 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
         ScheduledTaskLog scheduledTaskLog = ScheduledTaskLog.builder().id(UUID.randomUUID().toString()).taskId(scheduledTask.getId()).startDateTime(LocalDateTime.now()).status(0).build();
         scheduledTaskLogService.saveAndFlush(scheduledTaskLog);
         scheduledTaskLog.setStatus(2);
-        switch (scheduledTask.getTaskType().toLowerCase()) {
-            case "curl":
-                try {
-                    Response response = executeCurl(scheduledTask.getTaskInfo());
-                    if (response.isSuccessful()) {
-                        scheduledTaskLog.setStatus(1);
-                    } else {
-                        scheduledTaskLog.setExecuteInfo(response.toString());
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            // 执行任务逻辑
+            switch (scheduledTask.getTaskType().toLowerCase()) {
+                case "curl":
+                    try {
+                        Response response = executeCurl(scheduledTask.getTaskInfo());
+                        if (response.isSuccessful()) {
+                            scheduledTaskLog.setStatus(1);
+                        } else {
+                            scheduledTaskLog.setExecuteInfo(response.toString());
+                        }
+                    } catch (Exception e) {
+                        scheduledTaskLog.setExecuteInfo(e.getMessage());
+                        log.error("Error executing task logic: {}", e.getMessage());
                     }
-                } catch (Exception e) {
-                    scheduledTaskLog.setExecuteInfo(e.getMessage());
-                    log.error("Error executing task logic: {}", e.getMessage());
-                }
-                break;
-            default:
-                scheduledTaskLog.setExecuteInfo("不被支持的任务类型");
+                    break;
+                default:
+                    scheduledTaskLog.setExecuteInfo("不被支持的任务类型");
 
+            }
+        });
+        try {
+            //默认3分钟
+            future.get(ObjectUtils.anyNull(scheduledTask.getTimeout()) ? 3 : scheduledTask.getTimeout(), TimeUnit.MINUTES);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            scheduledTaskLog.setExecuteInfo(e.getMessage());
+            throw new RuntimeException(e);
         }
         scheduledTaskLog.setEndDateTime(LocalDateTime.now());
         scheduledTaskLog.setExecutionTime(System.currentTimeMillis() - start);
