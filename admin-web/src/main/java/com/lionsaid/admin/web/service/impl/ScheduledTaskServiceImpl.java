@@ -16,10 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -42,7 +45,7 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
 
     private static Map<String, ScheduledFuture<?>> scheduledTasks = Maps.newConcurrentMap();
 
-    // @Scheduled(fixedRate = 60000) // 每分钟执行一次
+    @Scheduled(fixedRate = 60000) // 每分钟执行一次
     public void doSomething() {
         repository.findByTaskStatus(1).forEach(this::startOrSkipTask);
         log.info("执行任务逻辑...");
@@ -51,7 +54,7 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
     private void startOrSkipTask(ScheduledTask scheduledTask) {
         if (!scheduledTasks.containsKey(scheduledTask.getId())) {
             startTask(scheduledTask.getId());
-            redisTemplate.opsForHash().put("scheduledTask", scheduledTask.getId().toString(), JSON.toJSONString(scheduledTask));
+            redisTemplate.opsForHash().put("scheduledTask", scheduledTask.getId(), JSON.toJSONString(scheduledTask));
         }
     }
 
@@ -71,11 +74,10 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
     @Override
     public List<JSONObject> getRunTask() {
         List<JSONObject> list = Lists.newArrayList();
-        Map<Object, Object> allEntries = redisTemplate.opsForHash().entries("scheduledTask");
-        allEntries.forEach((key, value) -> {
+        scheduledTasks.forEach((key, value) -> {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("id", key);
-            jsonObject.put("taskInfo", JSONObject.parseObject(value.toString()));
+            jsonObject.put("taskInfo", value);
             list.add(jsonObject);
         });
         return list;
@@ -97,21 +99,34 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
     public void startTask(String taskId) {
         if (!scheduledTasks.containsKey(taskId)) {
             Optional<ScheduledTask> optional = repository.findById(taskId);
-            optional.ifPresent(scheduledTask -> {
-                Runnable taskRunnable = () -> {
-                    // Execute the task logic
-                    log.error("{}", scheduledTask);
-                    executeTask(scheduledTask);
+            optional.ifPresentOrElse(scheduledTask -> {
+                Runnable runnable = () -> {
+                    RLock lock = null;
+                    try {
+                        lock = redissonClient.getLock("lock_scheduled" + taskId + scheduledTask.getCreatedDate());
+                        if (lock.tryLock()) {
+                            log.info("Acquired lock for task {}", scheduledTask.getId());
+                            executeTask(scheduledTask);
+                        } else {
+                            log.warn("Failed to acquire lock for task {}", scheduledTask.getId());
+                        }
+                    } finally {
+                        if (null != lock && lock.isHeldByCurrentThread()) {
+                            lock.unlock();
+                            log.debug("Released lock");
+                        }
+                    }
                 };
+                // Schedule and store task information outside the lock
                 Trigger trigger = new CronTrigger(scheduledTask.getCron());
-                ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(taskRunnable, trigger);
+                ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(runnable, trigger);
                 scheduledTasks.put(scheduledTask.getId(), scheduledFuture);
                 redisTemplate.opsForHash().put("scheduledTask", scheduledTask.getId().toString(), JSON.toJSONString(scheduledTask));
                 syncTaskChangeToRedis(taskId, "start");
-            });
-
+            }, () -> log.error("Task with ID {} not found", taskId));
         }
     }
+
 
     private void executeTask(ScheduledTask scheduledTask) {
         long start = System.currentTimeMillis();
@@ -132,6 +147,9 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
                     log.error("Error executing task logic: {}", e.getMessage());
                 }
                 break;
+            default:
+                scheduledTaskLog.setExecuteInfo("不被支持的任务类型");
+
         }
         scheduledTaskLog.setEndDateTime(LocalDateTime.now());
         scheduledTaskLog.setExecutionTime(System.currentTimeMillis() - start);
@@ -157,7 +175,7 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
         // 解析Curl命令
         String[] tokens = curlCommand.split("\\s+");
         String url = null;
-        HttpMethod method = null;
+        HttpMethod method = HttpMethod.GET;
         Map<String, String> headers = new HashMap<>();
         JSONObject requestBodyMap = new JSONObject();
         int timeout = 0;
@@ -209,7 +227,5 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
         return client.newCall(requestBuilder.build()).execute();
     }
 
-    private enum HttpMethod {
-        GET, POST, PUT, DELETE
-    }
+
 }

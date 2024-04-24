@@ -1,6 +1,9 @@
 package com.lionsaid.admin.web.model.po;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +20,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "sys_scheduled_task")
-public class ScheduledTask  {
+@Table(name = "scheduled_task")
+public class ScheduledTask {
     @Id
     @Column(name = "id", nullable = false)
     private String id;
@@ -28,6 +31,7 @@ public class ScheduledTask  {
     // @Column(nullable = false, columnDefinition = "0停止 1开始")
     private Integer taskStatus;
     private String taskInfo;
+    private Integer timeout;
     @CreatedBy
     private String createdBy;
     @CreatedDate
