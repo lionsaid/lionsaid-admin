@@ -1,6 +1,7 @@
 package com.lionsaid.admin.web.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -27,6 +28,9 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -147,6 +151,10 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
                         log.error("Error executing task logic: {}", e.getMessage());
                     }
                     break;
+                case "bean":
+                    scheduledTaskLog.setExecuteInfo(executeBean(scheduledTask.getTaskInfo()));
+                    scheduledTaskLog.setStatus(1);
+                    break;
                 default:
                     scheduledTaskLog.setExecuteInfo("不被支持的任务类型");
 
@@ -177,6 +185,28 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
         stopTask(scheduledTask.getId());
         startTask(scheduledTask.getId());
     }
+
+    @SneakyThrows
+    public static String executeBean(String command) {
+        JSONArray jsonArray=new JSONArray();
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            // 获取命令执行结果
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                jsonArray.add(line);
+            }
+            // 等待命令执行完毕
+            int exitCode = process.waitFor();
+            System.out.println("Command executed with exit code: " + exitCode);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return jsonArray.toJSONString();
+    }
+
 
     @SneakyThrows
     public static Response executeCurl(String curlCommand) {
