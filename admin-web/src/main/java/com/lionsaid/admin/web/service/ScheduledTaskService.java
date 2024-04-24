@@ -6,16 +6,16 @@ import com.lionsaid.admin.web.model.po.ScheduledTask;
 
 import java.util.List;
 
-public interface ScheduledTaskService extends IService<ScheduledTask, Long> {
+public interface ScheduledTaskService extends IService<ScheduledTask, String> {
 
 
-    void removeTask(Long taskId);
+    void removeTask(String taskId);
 
     List< JSONObject> getRunTask();
 
-    void stopTask(Long taskId);
+    void stopTask(String taskId);
 
-    void startTask(Long taskId);
+    void startTask(String taskId);
 
     void updateTask(ScheduledTask scheduledTask);
 }

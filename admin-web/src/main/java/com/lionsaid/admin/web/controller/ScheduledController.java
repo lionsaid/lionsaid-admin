@@ -3,6 +3,7 @@ package com.lionsaid.admin.web.controller;
 import com.alibaba.fastjson2.JSONObject;
 import com.lionsaid.admin.web.model.po.ScheduledTask;
 import com.lionsaid.admin.web.service.ScheduledTaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * @author sunwei
  */
+@Tag(name = "定时任务")
 @Slf4j
 @RestController
 @AllArgsConstructor
@@ -21,21 +23,26 @@ public class ScheduledController {
     private final ScheduledTaskService scheduledTaskService;
 
 
-    @PostMapping("/save")
-    public ResponseEntity<String> addTask(@RequestBody ScheduledTask task) {
+    @PostMapping("/post")
+    public ResponseEntity<String> postTask(@RequestBody ScheduledTask task) {
         scheduledTaskService.saveAndFlush(task);
         return ResponseEntity.ok("Task added successfully");
     }
 
-    @PutMapping("/stopTask/{taskId}")
-    public ResponseEntity<String> stopTask(@PathVariable Long taskId) {
+    @PutMapping("/put")
+    public ResponseEntity<String> putTask(@RequestBody ScheduledTask task) {
+        scheduledTaskService.saveAndFlush(task);
+        return ResponseEntity.ok("Task added successfully");
+    }
+
+    @GetMapping("/stopTask/{taskId}")
+    public ResponseEntity<String> stopTask(@PathVariable String taskId) {
         scheduledTaskService.stopTask(taskId);
         return ResponseEntity.ok("Task added successfully");
     }
 
-    @PutMapping("/startTask/{taskId}")
-    public ResponseEntity<String> startTask(@PathVariable Long taskId) {
-        scheduledTaskService.startTask(taskId);
+    @GetMapping("/startTask/{taskId}")
+    public ResponseEntity<String> startTask(@PathVariable String taskId) {scheduledTaskService.startTask(taskId);
         return ResponseEntity.ok("Task stop successfully");
     }
 
@@ -45,7 +52,7 @@ public class ScheduledController {
     }
 
     @DeleteMapping("/remove/{taskId}")
-    public ResponseEntity<String> removeTask(@PathVariable Long taskId) {
+    public ResponseEntity<String> removeTask(@PathVariable String taskId) {
         scheduledTaskService.removeTask(taskId);
         return ResponseEntity.ok("Task removed successfully");
     }

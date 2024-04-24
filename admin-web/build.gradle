@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
     implementation 'org.springframework.boot:spring-boot-actuator'
     implementation 'org.springframework.boot:spring-boot-actuator-autoconfigure'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -38,6 +39,8 @@ dependencies {
     implementation "org.springframework.security:spring-security-oauth2-authorization-server:1.0.2"
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.20.1'
+
     implementation 'com.alibaba:fastjson:2.0.20'
     implementation 'com.google.guava:guava:32.1.2-jre'
     implementation 'org.ansj:ansj_seg:5.1.6'
@@ -49,7 +52,6 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java:8.0.28'
     implementation 'org.postgresql:postgresql'
-
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'com.googlecode.log4jdbc:log4jdbc:1.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

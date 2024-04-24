@@ -41,7 +41,6 @@ public class DataSyncServiceImpl implements DataSyncService {
         log.error(" dataSyncJobRepository.findById(id) => {}",optional);
         JSONArray failInfo = new JSONArray();
         AtomicReference<Long> success = new AtomicReference<>(0L);
-        AtomicReference<Long> fail = new AtomicReference<>(0L);
         if (optional.isPresent()) {
             try {
                 DataSyncJob dataSyncJob = optional.get();
@@ -55,6 +54,7 @@ public class DataSyncServiceImpl implements DataSyncService {
                     } else {
                         sourceSourceUtils.insert(result);
                     }
+                    success.set(success.get() + 1);
                 });
             } catch (Exception e) {
                 failInfo.add(e.getMessage());
@@ -63,7 +63,7 @@ public class DataSyncServiceImpl implements DataSyncService {
             failInfo.add(id + "被删除或不存在");
         }
         dataSyncLog.setSuccess(success.get());
-        dataSyncLog.setFail(fail.get());
+        dataSyncLog.setFail(Long.valueOf(failInfo.size()));
         dataSyncLog.setFailInfo(failInfo.toJSONString());
         dataSyncLog.setEndDateTime(LocalDateTime.now());
         dataSyncLog.setExecutionTime(System.currentTimeMillis() - start);
