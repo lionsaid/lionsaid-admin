@@ -1,8 +1,6 @@
 package com.lionsaid.admin.web.model.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lionsaid.admin.web.enums.Gender;
-import com.lionsaid.admin.web.enums.LionSaidStatusFlag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

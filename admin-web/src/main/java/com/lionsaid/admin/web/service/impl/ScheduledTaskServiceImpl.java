@@ -62,14 +62,11 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
 
     @Override
     public void removeTask(String taskId) {
-        ScheduledFuture<?> scheduledFuture = scheduledTasks.remove(taskId);
-        if (scheduledFuture != null) {
+        if (scheduledTasks.containsKey(taskId)) {
+            ScheduledFuture<?> scheduledFuture = scheduledTasks.get(taskId);
             scheduledFuture.cancel(true);
-            redisTemplate.opsForHash().delete("scheduledTask", taskId);
-            syncTaskChangeToRedis(taskId, "delete");
-        } else {
-            throw new IllegalArgumentException("Task with ID " + taskId + " not found");
         }
+        redisTemplate.opsForHash().delete("scheduledTask", taskId);
         repository.deleteById(taskId);
     }
 
@@ -87,14 +84,12 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
 
     @Override
     public void stopTask(String taskId) {
-        ScheduledFuture<?> scheduledFuture = scheduledTasks.remove(taskId);
-        if (scheduledFuture != null) {
+        if (scheduledTasks.containsKey(taskId)) {
+            ScheduledFuture<?> scheduledFuture = scheduledTasks.get(taskId);
             scheduledFuture.cancel(true);
-            syncTaskChangeToRedis(taskId, "stop");
-            repository.updateTaskStatusById(0, taskId);
-        } else {
-            throw new IllegalArgumentException("Task with ID " + taskId + " not found");
         }
+        syncTaskChangeToRedis(taskId, "stop");
+        repository.updateTaskStatusById(0, taskId);
     }
 
     @Override
@@ -143,6 +138,7 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
                         Response response = executeCurl(scheduledTask.getTaskInfo());
                         if (response.isSuccessful()) {
                             scheduledTaskLog.setStatus(1);
+                            scheduledTaskLog.setExecuteInfo(response.toString());
                         } else {
                             scheduledTaskLog.setExecuteInfo(response.toString());
                         }
@@ -188,7 +184,7 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
 
     @SneakyThrows
     public static String executeBean(String command) {
-        JSONArray jsonArray=new JSONArray();
+        JSONArray jsonArray = new JSONArray();
         try {
             Process process = Runtime.getRuntime().exec(command);
             // 获取命令执行结果

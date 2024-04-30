@@ -1,15 +1,12 @@
-package com.lionsaid.admin.web.service.impl;
+package com.lionsaid.admin.web.datasync;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.google.common.collect.Lists;
 import com.lionsaid.admin.web.model.po.DataSyncDataSource;
 import com.lionsaid.admin.web.model.po.DataSyncJob;
 import com.lionsaid.admin.web.model.po.DataSyncJobFilter;
-import com.lionsaid.admin.web.model.po.DataSyncLog;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -22,34 +19,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class DataSourceUtils {
-    private final JdbcTemplate sourceJdbcTemplate;
-    private final JdbcTemplate targetJdbcTemplate;
-    private final Map<String, List<DataSyncJobFilter>> filter;
-    private final DataSyncDataSource source;
-    private final DataSyncDataSource target;
-    private final DataSyncJob dataSyncJob;
-    private final JSONArray failInfo;
+public class JDBCDataSyncFunction extends DataSyncFunction {
+    private Map<String, List<DataSyncJobFilter>> filter;
+    private DataSyncDataSource source;
+    private DataSyncJob dataSyncJob;
+    private JSONArray failInfo;
+    private JdbcTemplate jdbcTemplate;
 
-    public DataSourceUtils(DataSyncDataSource source, DataSyncDataSource target, DataSyncJob dataSyncJob, DataSyncLog dataSyncLog, Map<String, List<DataSyncJobFilter>> filter, JSONArray failInfo) {
+    public JDBCDataSyncFunction(Map<String, List<DataSyncJobFilter>> filter, DataSyncDataSource source, DataSyncJob dataSyncJob, JSONArray failInfo) {
+        this.filter = filter;
         this.source = source;
-        this.target = target;
         this.dataSyncJob = dataSyncJob;
         this.failInfo = failInfo;
-        this.filter = filter;
+        this.jdbcTemplate = getJdbcTemplate(this.source);
+    }
 
-        // 初始化源数据源的 JdbcTemplate
-        sourceJdbcTemplate = new JdbcTemplate(DataSourceBuilder.create()
-                .url(source.getUrl())
-                .username(source.getUsername())
-                .password(source.getPassword())
-                .driverClassName(source.getDriverClassName())
-                .build());
-
-        // 初始化目标数据源的 JdbcTemplate
-        targetJdbcTemplate = new JdbcTemplate(DataSourceBuilder.create()
+    private JdbcTemplate getJdbcTemplate(DataSyncDataSource target) {
+        return new JdbcTemplate(DataSourceBuilder.create()
                 .url(target.getUrl())
                 .username(target.getUsername())
                 .password(target.getPassword())
@@ -57,8 +44,12 @@ public class DataSourceUtils {
                 .build());
     }
 
-    public Stream<JSONObject> queryForStream() {
-        return sourceJdbcTemplate.queryForStream(dataSyncJob.getSourceSql(), (rs, rowNum) -> {
+    @Override
+    public DataSyncResult queryForStream(DataSyncResult dataSyncResult) {
+        int page = (dataSyncResult.page * dataSyncResult.size);
+        String sql = dataSyncJob.getSourceSql().replace("{page}", page + "");
+        sql = sql.replace("{size}", dataSyncResult.size + "");
+        return DataSyncResult.builder().result(jdbcTemplate.queryForStream(sql, (rs, rowNum) -> {
             JSONObject jsonObject = new JSONObject();
             ResultSetMetaData resultSetMetaData = rs.getMetaData();
             for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
@@ -80,21 +71,21 @@ public class DataSourceUtils {
                     return new JSONObject();
                 }
             }
-        }).filter(o -> !o.isEmpty());
+        }).filter(o -> !o.isEmpty())).build();
     }
 
+    @Override
     public Boolean exist(JSONObject result) {
         ArrayList<String> ids = new ArrayList<>();
         Arrays.stream(dataSyncJob.getTargetId().split(",")).forEach(o -> ids.add(result.getString(o)));
         Long count = 0L;
         String sql;
         if (!StringUtils.isEmpty(dataSyncJob.getTargetId())) {
-            switch (target.getSourceType().toLowerCase()) {
+            switch (source.getSourceType().toLowerCase()) {
                 case "mysql":
                     sql = "SELECT COUNT(1) FROM  " + dataSyncJob.getTargetTable() + " WHERE " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> "`" + o + "` =?").collect(Collectors.joining("  and "));
                     break;
-                case "kingbase8":
-                case "informix":
+                case "kingbase8", "informix":
                     sql = "SELECT COUNT(1) FROM  " + dataSyncJob.getTargetTable() + " WHERE " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> o + "= ?").collect(Collectors.joining("  and "));
                     break;
                 case "sql server":
@@ -103,22 +94,24 @@ public class DataSourceUtils {
                 default:
                     throw new RuntimeException("不支持的数据源");
             }
-            count = targetJdbcTemplate.queryForObject(sql, Long.class, ids.toArray());
+            count = jdbcTemplate.queryForObject(sql, Long.class, ids.toArray());
         }
         return count > 0;
     }
 
+    @Override
     public int update(JSONObject result) {
         String sql;
         Object[] args;
         ArrayList<Object> argsList = new ArrayList<>();
         Arrays.stream(dataSyncJob.getTargetId().split(",")).forEach(o -> argsList.add(result.getString(o)));
-        switch (target.getSourceType().toLowerCase()) {
+        switch (source.getSourceType().toLowerCase()) {
             case "mysql":
-                sql = "update " + dataSyncJob.getTargetTable() + " set " + result.keySet().stream().map(o -> "`" + o + "`=? ").collect(Collectors.joining(",")) + " where " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> "`" + o + "`=?").collect(Collectors.joining("  and "));
+                sql = "update  " + dataSyncJob.getTargetTable() + " set " + result.keySet().stream().map(o -> "`" + o + "`=? ").collect(Collectors.joining(",")) + " where " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> "`" + o + "`=?").collect(Collectors.joining("  and "));
                 break;
-            case "kingbase8":
-            case "informix":
+            case "kingbase8", "informix":
+                sql = "update  " + dataSyncJob.getTargetTable() + " set " + result.keySet().stream().map(o -> o + " =? ").collect(Collectors.joining(",")) + " where " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> o + " =?").collect(Collectors.joining("  and "));
+                break;
             case "sql server":
                 sql = "update " + dataSyncJob.getTargetTable() + " set " + result.keySet().stream().map(o -> "[" + o + "] =? ").collect(Collectors.joining(",")) + " where " + Arrays.stream(dataSyncJob.getTargetId().split(",")).map(o -> "[" + o + "] =?").collect(Collectors.joining("  and "));
                 break;
@@ -129,7 +122,7 @@ public class DataSourceUtils {
         args = argsList.toArray();
         try {
             // 执行更新操作...
-            return targetJdbcTemplate.update(sql, args);
+            return jdbcTemplate.update(sql, args);
         } catch (Exception e) {
             // 发生异常时记录错误日志
             JSONObject errorObject = new JSONObject();
@@ -141,15 +134,17 @@ public class DataSourceUtils {
         }
     }
 
+    @Override
     public int insert(JSONObject result) {
         String sql;
         Object[] args;
-        switch (target.getSourceType().toLowerCase()) {
+        switch (source.getSourceType().toLowerCase()) {
             case "mysql":
                 sql = "INSERT INTO " + dataSyncJob.getTargetTable() + " (" + result.keySet().stream().map(o -> "`" + o + "`").collect(Collectors.joining(",")) + ")\n" + "VALUES (" + result.keySet().stream().map(o -> "?").collect(Collectors.joining(",")) + ");\n";
                 break;
-            case "kingbase8":
-            case "informix":
+            case "kingbase8", "informix":
+                sql = "INSERT INTO " + dataSyncJob.getTargetTable() + " (" + result.keySet().stream().collect(Collectors.joining(",")) + ")\n" + "VALUES (" + result.keySet().stream().map(o -> "?").collect(Collectors.joining(",")) + ");\n";
+                break;
             case "sql server":
                 sql = "INSERT INTO " + dataSyncJob.getTargetTable() + " (" + result.keySet().stream().collect(Collectors.joining(",")) + ")\n" + "VALUES (" + result.keySet().stream().map(o -> "?").collect(Collectors.joining(",")) + ");\n";
                 break;
@@ -159,7 +154,7 @@ public class DataSourceUtils {
         args = result.values().toArray();
         try {
             // 执行插入操作...
-            return targetJdbcTemplate.update(sql, args);
+            return jdbcTemplate.update(sql, args);
         } catch (Exception e) {
             // 发生异常时记录错误日志
             JSONObject errorObject = new JSONObject();
@@ -181,7 +176,7 @@ public class DataSourceUtils {
                     }
                     switch (o.getFilterType()) {
                         case "json_encode":
-                            jsonObject.put(key, JSON.parse(jsonObject.getString(key)));
+                            jsonObject.put(key, JSON.parse(jsonObject.getString(key)).toString());
                             break;
                         case "url_decode":
                             jsonObject.put(key, URLDecoder.decode(jsonObject.getString(key), setting.containsKey("charset") ? Charset.forName(setting.getString("charset")) : Charset.forName("utf-8")));

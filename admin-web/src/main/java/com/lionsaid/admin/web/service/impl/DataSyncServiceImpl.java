@@ -2,6 +2,8 @@ package com.lionsaid.admin.web.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.google.common.collect.Maps;
+import com.lionsaid.admin.web.datasync.DataSourceUtils;
+import com.lionsaid.admin.web.datasync.DataSyncResult;
 import com.lionsaid.admin.web.model.po.DataSyncDataSource;
 import com.lionsaid.admin.web.model.po.DataSyncJob;
 import com.lionsaid.admin.web.model.po.DataSyncJobFilter;
@@ -13,7 +15,6 @@ import com.lionsaid.admin.web.repository.DataSyncLogRepository;
 import com.lionsaid.admin.web.service.DataSyncService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,7 +39,7 @@ public class DataSyncServiceImpl implements DataSyncService {
         long start = System.currentTimeMillis();
         DataSyncLog dataSyncLog = DataSyncLog.builder().startDateTime(LocalDateTime.now()).jobId(id).build();
         Optional<DataSyncJob> optional = dataSyncJobRepository.findById(id);
-        log.error(" dataSyncJobRepository.findById(id) => {}",optional);
+        log.error(" dataSyncJobRepository.findById(id) => {}", optional);
         JSONArray failInfo = new JSONArray();
         AtomicReference<Long> success = new AtomicReference<>(0L);
         if (optional.isPresent()) {
@@ -47,15 +48,23 @@ public class DataSyncServiceImpl implements DataSyncService {
                 Map<String, List<DataSyncJobFilter>> filter = getFilter(dataSyncJob.getId());
                 DataSyncDataSource source = dataSyncDataSourceRepository.findById(dataSyncJob.getSource()).get();
                 DataSyncDataSource target = dataSyncDataSourceRepository.findById(dataSyncJob.getTarget()).get();
-                DataSourceUtils sourceSourceUtils = new DataSourceUtils(source, target, dataSyncJob, dataSyncLog, filter, failInfo);
-                sourceSourceUtils.queryForStream().forEach(result -> {
-                    if (sourceSourceUtils.exist(result)) {
-                        sourceSourceUtils.update(result);
-                    } else {
-                        sourceSourceUtils.insert(result);
-                    }
-                    success.set(success.get() + 1);
-                });
+                DataSourceUtils sourceSourceUtils = new DataSourceUtils(source, target, dataSyncJob, filter, failInfo);
+                DataSyncResult dataSyncResult = DataSyncResult.builder().build();
+                do {
+                    dataSyncResult = sourceSourceUtils.queryForStream(dataSyncResult);
+                    dataSyncResult.getResult().forEach(result -> {
+                        if (sourceSourceUtils.exist(result)) {
+                            if (sourceSourceUtils.update(result) != -1) {
+                                success.set(success.get() + 1);
+                            }
+                        } else {
+                            if (sourceSourceUtils.insert(result) != -1) {
+                                success.set(success.get() + 1);
+                            }
+                        }
+                    });
+                    dataSyncResult.setPage(dataSyncResult.getPage() + 1);
+                } while (dataSyncResult.getResult().count() != 0);
             } catch (Exception e) {
                 failInfo.add(e.getMessage());
             }
