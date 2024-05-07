@@ -51,7 +51,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
  */
 @Configuration(proxyBeanMethods = false)
 @AllArgsConstructor
-public class AuthorizationServerConfig{
+public class AuthorizationServerConfig {
 
 
     private final UserDetailsService userDetailsService;
@@ -63,14 +63,13 @@ public class AuthorizationServerConfig{
             AuthorizationServerSettings authorizationServerSettings) throws Exception {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-
         http
-            .exceptionHandling(exceptions ->
-                exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
-            )
+                .exceptionHandling(exceptions ->
+                        exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                )
                 .userDetailsService(userDetailsService)
-            .oauth2ResourceServer(oauth2ResourceServer ->
-                oauth2ResourceServer.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer(oauth2ResourceServer ->
+                        oauth2ResourceServer.jwt(Customizer.withDefaults()));
         // @formatter:on
         return http.build();
     }
@@ -111,6 +110,7 @@ public class AuthorizationServerConfig{
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

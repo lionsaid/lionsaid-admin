@@ -1,8 +1,7 @@
 package com.lionsaid.admin.web.aop;
 
-import com.lionsaid.admin.web.annotation.SysLog;
-import com.lionsaid.admin.web.model.po.Log;
-import com.lionsaid.admin.web.service.LogService;
+import com.lionsaid.admin.web.business.model.po.SysLog;
+import com.lionsaid.admin.web.business.service.LogService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -22,8 +21,8 @@ public class LogAspect {
     private final LogService logService;
 
     @Before("@annotation(sysLog)")
-    public void logRequest(JoinPoint joinPoint, SysLog sysLog) {
-        Log log = Log.builder().description(sysLog.value())
+    public void logRequest(JoinPoint joinPoint, com.lionsaid.admin.web.annotation.SysLog sysLog) {
+        SysLog log = SysLog.builder().description(sysLog.value())
                 .expiredDateTime(LocalDateTime.now().plusDays(sysLog.expired())).build();
         for (Object args : joinPoint.getArgs()) {
             if (args instanceof ServletRequest) {

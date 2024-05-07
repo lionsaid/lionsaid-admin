@@ -2,9 +2,9 @@ package com.lionsaid.admin.web.datasync;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.lionsaid.admin.web.model.po.DataSyncDataSource;
-import com.lionsaid.admin.web.model.po.DataSyncJob;
-import com.lionsaid.admin.web.model.po.DataSyncJobFilter;
+import com.lionsaid.admin.web.business.model.po.DataSyncDataSource;
+import com.lionsaid.admin.web.business.model.po.DataSyncJob;
+import com.lionsaid.admin.web.business.model.po.DataSyncJobFilter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
