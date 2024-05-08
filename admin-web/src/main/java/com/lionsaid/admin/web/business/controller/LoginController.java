@@ -21,13 +21,13 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,15 +50,13 @@ public class LoginController {
     @SysLog(value = "用户登录")
     @SneakyThrows
     @PostMapping("/password")
-    public ResponseEntity password(HttpServletRequest request, HttpServletResponse response, @NotNull @Valid UserLoginDTO dto) {
+    public ResponseEntity password(HttpServletRequest request, HttpServletResponse response, @RequestBody @NotNull @Valid UserLoginDTO dto) {
         SysUser userDetails = userService.loadUserByUsername(dto.getUsername());
         if (passwordEncoder.matches(dto.getUsername(), userDetails.getPassword())) {
             userDetails.setAuthorities("administration,1111,2222,3333");
             Base64.Encoder encoder = Base64.getEncoder();
-            String prefix = encoder.encodeToString(("USER" + userDetails.getId() + "AUTH").getBytes(StandardCharsets.UTF_8));
-            ArrayList<@Nullable String> keyList = findKey(prefix);
-            String token = prefix + keyList.size() + "SIZE" + UUID.randomUUID().toString().replace("-", "").toUpperCase();
-            // 设置键的过期时间为7天
+            String prefix = "USER" + userDetails.getId() + "AUTH";
+            String token = encoder.encodeToString((prefix + UUID.randomUUID().toString().replace("-", "").toUpperCase()).getBytes(StandardCharsets.UTF_8));
             Authentication authenticationRequest =
                     UsernamePasswordAuthenticationToken.authenticated(dto.getUsername(), dto.getPassword(), userDetails.getAuthorities());
             request.setAttribute("Authorization", token);
