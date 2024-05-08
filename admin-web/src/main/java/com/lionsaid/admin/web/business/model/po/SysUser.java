@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 
 @Data
@@ -105,9 +106,12 @@ public class SysUser implements UserDetails {
      * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
      */
     private boolean isEnabled;
+    @Transient
+    private String authorities;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Arrays.stream(authorities.split(",")).map(o -> (GrantedAuthority) () -> o).toList();
     }
 }

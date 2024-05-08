@@ -33,10 +33,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
-
-    implementation "org.springframework.security:spring-security-oauth2-authorization-server:1.0.2"
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'

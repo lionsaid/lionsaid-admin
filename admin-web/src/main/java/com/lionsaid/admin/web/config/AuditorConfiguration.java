@@ -3,6 +3,7 @@ package com.lionsaid.admin.web.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lionsaid.admin.web.business.model.po.SysUser;
+import com.lionsaid.admin.web.business.repository.SecurityRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -28,7 +31,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuditorConfiguration implements AuditorAware<String> {
 
-    private final StringRedisTemplate redisTemplate;
+    private final SecurityRepository securityRepository;
 
     @Override
     public Optional<String> getCurrentAuditor() {
@@ -40,8 +43,8 @@ public class AuditorConfiguration implements AuditorAware<String> {
                 authorization = request.getHeader("Authorization");
             }
             if (StringUtils.isNotEmpty(authorization)) {
-                SysUser user = JSONObject.parseObject(redisTemplate.opsForValue().get(authorization), SysUser.class);
-                return Optional.of(user.getId().toString());
+                SecurityContext deferredSecurityContext = securityRepository.loadContext(new HttpRequestResponseHolder(request, null));
+                return Optional.of(deferredSecurityContext.getAuthentication().getName());
             }
         } catch (Exception e) {
             log.error("AuditorConfiguration -> getCurrentAuditor: [{}]", e.getMessage());
