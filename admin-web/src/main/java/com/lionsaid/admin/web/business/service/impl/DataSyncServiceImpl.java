@@ -15,6 +15,7 @@ import com.lionsaid.admin.web.business.repository.DataSyncJobRepository;
 import com.lionsaid.admin.web.business.repository.DataSyncLogRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,30 +43,36 @@ public class DataSyncServiceImpl implements DataSyncService {
         log.error(" dataSyncJobRepository.findById(id) => {}", optional);
         JSONArray failInfo = new JSONArray();
         AtomicReference<Long> success = new AtomicReference<>(0L);
+        DataSourceUtils sourceSourceUtils = null;
         if (optional.isPresent()) {
             try {
                 DataSyncJob dataSyncJob = optional.get();
                 Map<String, List<DataSyncJobFilter>> filter = getFilter(dataSyncJob.getId());
                 DataSyncDataSource source = dataSyncDataSourceRepository.findById(dataSyncJob.getSource()).get();
                 DataSyncDataSource target = dataSyncDataSourceRepository.findById(dataSyncJob.getTarget()).get();
-                DataSourceUtils sourceSourceUtils = new DataSourceUtils(source, target, dataSyncJob, filter, failInfo);
+                sourceSourceUtils = new DataSourceUtils(source, target, dataSyncJob, filter, failInfo);
                 DataSyncResult dataSyncResult = DataSyncResult.builder().build();
                 do {
                     dataSyncResult = sourceSourceUtils.queryForStream(dataSyncResult);
+                    DataSourceUtils finalSourceSourceUtils = sourceSourceUtils;
                     dataSyncResult.getResult().forEach(result -> {
-                        if (sourceSourceUtils.exist(result)) {
-                            if (sourceSourceUtils.update(result) != -1) {
+                        if (finalSourceSourceUtils.exist(result)) {
+                            if (finalSourceSourceUtils.update(result) != -1) {
                                 success.set(success.get() + 1);
                             }
                         } else {
-                            if (sourceSourceUtils.insert(result) != -1) {
+                            if (finalSourceSourceUtils.insert(result) != -1) {
                                 success.set(success.get() + 1);
                             }
                         }
                     });
                     dataSyncResult.setPage(dataSyncResult.getPage() + 1);
                 } while (dataSyncResult.getResult().count() != 0);
+                sourceSourceUtils.close();
             } catch (Exception e) {
+                if (ObjectUtils.anyNotNull(sourceSourceUtils)) {
+                    sourceSourceUtils.close();
+                }
                 failInfo.add(e.getMessage());
             }
         } else {

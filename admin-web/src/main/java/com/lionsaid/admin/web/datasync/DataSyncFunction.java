@@ -11,4 +11,6 @@ public abstract class DataSyncFunction {
     public abstract int update(JSONObject result);
 
     public abstract int insert(JSONObject result);
+
+    public abstract void close();
 }

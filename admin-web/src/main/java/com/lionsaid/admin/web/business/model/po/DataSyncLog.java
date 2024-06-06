@@ -16,10 +16,9 @@ import java.time.LocalDateTime;
 @Table(name = "data_sync_log")
 public class DataSyncLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
-    @SequenceGenerator(name = "id_generator", sequenceName = "data_sync_log_id", allocationSize = 1, initialValue = 100000)
+    @GeneratedValue(strategy = GenerationType.UUID )
     @Column(name = "id", nullable = false)
-    private Long id;
+    private String id;
     private Long jobId;
     private Long success;
     private Long fail;

@@ -34,6 +34,10 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    implementation 'commons-io:commons-io:2.16.1'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
@@ -44,7 +48,6 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
     testImplementation 'org.projectlombok:lombok:1.18.26'
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java:8.0.28'
     implementation 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
@@ -55,8 +58,8 @@ dependencies {
     implementation 'com.tencentcloudapi:tencentcloud-sdk-java:3.1.683'
     implementation group: 'com.github.houbb', name: 'opencc4j', version: '1.8.1'
 
-    implementation 'co.elastic.clients:elasticsearch-java:8.13.2'
-  //  implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    //implementation 'co.elastic.clients:elasticsearch-java:8.13.2'
+    //  implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }

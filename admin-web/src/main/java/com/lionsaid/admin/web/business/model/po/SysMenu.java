@@ -22,10 +22,9 @@ import java.time.LocalDateTime;
 })
 public class SysMenu {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
-    @SequenceGenerator(name = "id_generator", sequenceName = "id_generator", allocationSize = 1, initialValue = 100000)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private String id;
     private String name;
     private Integer status;
     @CreatedBy

@@ -15,6 +15,7 @@ import com.lionsaid.admin.web.business.model.po.DataSyncDataSource;
 import com.lionsaid.admin.web.business.model.po.DataSyncJob;
 import com.lionsaid.admin.web.business.model.po.DataSyncJobFilter;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -91,17 +92,21 @@ public class ElasticsearchDataSyncFunction extends DataSyncFunction {
     @Override
     public int update(JSONObject result) {
 
-
-       // elasticsearchClient.update(UpdateRequest.of(o -> o.id("").id("").doc("")));
-        // 执行更新操作...
         return 0;
     }
 
     @Override
     public int insert(JSONObject result) {
-      return 0;
+        return 0;
     }
 
+    @SneakyThrows
+    @Override
+    public void close() {
+        if (ObjectUtils.allNotNull(elasticsearchClient)) {
+            elasticsearchClient.closePointInTime(o -> o);
+        }
+    }
 
 
     private JSONObject mapFilter(JSONObject jsonObject, Map<String, List<DataSyncJobFilter>> filter) {

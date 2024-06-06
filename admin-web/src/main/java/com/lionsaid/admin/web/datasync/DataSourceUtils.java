@@ -25,7 +25,6 @@ public class DataSourceUtils {
     }
 
 
-
     public DataSyncResult queryForStream(DataSyncResult dataSyncResult) {
         return sourceDataSyncFunction.queryForStream(dataSyncResult);
     }
@@ -40,6 +39,11 @@ public class DataSourceUtils {
 
     public int insert(JSONObject result) {
         return targetDataSyncFunction.insert(result);
+    }
+
+    public void close() {
+        sourceDataSyncFunction.close();
+        targetDataSyncFunction.close();
     }
 
 

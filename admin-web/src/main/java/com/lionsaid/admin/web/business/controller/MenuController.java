@@ -1,6 +1,9 @@
 package com.lionsaid.admin.web.business.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.lionsaid.admin.web.annotation.SysLog;
+import com.lionsaid.admin.web.business.model.dto.MenuDTO;
 import com.lionsaid.admin.web.business.model.po.SysMenu;
 import com.lionsaid.admin.web.business.service.MenuService;
 import com.lionsaid.admin.web.response.ResponseResult;
@@ -32,12 +35,12 @@ public class MenuController {
     @GetMapping("/{id}")
     public ResponseEntity get(HttpServletRequest request, @PathVariable Long id) {
         log.info("get {}", id);
-        return ResponseEntity.ok(ResponseResult.success(""));
+        return ResponseEntity.ok(ResponseResult.success(menuService.getById(id)));
     }
 
 
     @PreAuthorize("hasAnyAuthority('menu_get','administration')")
-    @SysLog(value = "menu_post")
+    @SysLog(value = "menu_get")
     @GetMapping("/findAll")
     public ResponseEntity<ResponseResult> findAll(HttpServletRequest request) {
         return ResponseEntity.ok(ResponseResult.success(""));
@@ -50,8 +53,21 @@ public class MenuController {
     @SysLog(value = "menu_put")
     @PreAuthorize("hasAnyAuthority('menu_put','administration')")
     @PutMapping()
-    public ResponseEntity<ResponseResult> put(HttpServletRequest request, @RequestBody SysMenu entity) {
-        return ResponseEntity.ok(ResponseResult.success(""));
+    public ResponseEntity<ResponseResult> put(HttpServletRequest request, @RequestBody MenuDTO entity) {
+        SysMenu sysMenu = JSONObject.parseObject(JSON.toJSONString(entity), SysMenu.class);
+        return ResponseEntity.ok(ResponseResult.success(menuService.saveAndFlush(sysMenu)));
+    }
+
+    /**
+     * @param entity
+     * @return
+     */
+    @SysLog(value = "menu_post")
+    @PreAuthorize("hasAnyAuthority('menu_post','administration')")
+    @PostMapping()
+    public ResponseEntity<ResponseResult> post(HttpServletRequest request, @RequestBody MenuDTO entity) {
+        SysMenu sysMenu = JSONObject.parseObject(JSON.toJSONString(entity), SysMenu.class);
+        return ResponseEntity.ok(ResponseResult.success(menuService.saveAndFlush(sysMenu)));
     }
 
     /**

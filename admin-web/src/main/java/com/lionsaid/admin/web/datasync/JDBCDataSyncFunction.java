@@ -6,6 +6,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.lionsaid.admin.web.business.model.po.DataSyncDataSource;
 import com.lionsaid.admin.web.business.model.po.DataSyncJob;
 import com.lionsaid.admin.web.business.model.po.DataSyncJobFilter;
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,6 +28,7 @@ public class JDBCDataSyncFunction extends DataSyncFunction {
     private DataSyncJob dataSyncJob;
     private JSONArray failInfo;
     private JdbcTemplate jdbcTemplate;
+    HikariDataSource dataSourceBuilder;
 
     public JDBCDataSyncFunction(Map<String, List<DataSyncJobFilter>> filter, DataSyncDataSource source, DataSyncJob dataSyncJob, JSONArray failInfo) {
         this.filter = filter;
@@ -35,13 +38,9 @@ public class JDBCDataSyncFunction extends DataSyncFunction {
         this.jdbcTemplate = getJdbcTemplate(this.source);
     }
 
-    private JdbcTemplate getJdbcTemplate(DataSyncDataSource target) {
-        return new JdbcTemplate(DataSourceBuilder.create()
-                .url(target.getUrl())
-                .username(target.getUsername())
-                .password(target.getPassword())
-                .driverClassName(target.getDriverClassName())
-                .build());
+    private JdbcTemplate getJdbcTemplate(DataSyncDataSource source) {
+        dataSourceBuilder = (HikariDataSource) DataSourceBuilder.create().url(source.getUrl()).password(source.getPassword()).username(source.getUsername()).driverClassName(source.getDriverClassName()).build();
+        return new JdbcTemplate(dataSourceBuilder);
     }
 
     @Override
@@ -163,6 +162,13 @@ public class JDBCDataSyncFunction extends DataSyncFunction {
             errorObject.put("message", e.getMessage());
             failInfo.add(errorObject);
             return -1;
+        }
+    }
+
+    @Override
+    public void close() {
+        if (ObjectUtils.allNotNull(dataSourceBuilder) && !dataSourceBuilder.isClosed()) {
+            dataSourceBuilder.close();
         }
     }
 
