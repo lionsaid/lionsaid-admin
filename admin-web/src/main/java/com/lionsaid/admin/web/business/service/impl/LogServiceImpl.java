@@ -1,9 +1,9 @@
 package com.lionsaid.admin.web.business.service.impl;
 
-import com.lionsaid.admin.web.common.IServiceImpl;
 import com.lionsaid.admin.web.business.model.po.SysLog;
 import com.lionsaid.admin.web.business.repository.LogRepository;
 import com.lionsaid.admin.web.business.service.LogService;
+import com.lionsaid.admin.web.common.IServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

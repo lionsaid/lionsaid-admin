@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/scheduled")
+@RequestMapping("/private/scheduled")
 public class ScheduledController {
     private final ScheduledTaskService scheduledTaskService;
 

@@ -1,8 +1,6 @@
 package com.lionsaid.admin.web.config;
 
 
-import com.alibaba.fastjson2.JSONObject;
-import com.lionsaid.admin.web.business.model.po.SysUser;
 import com.lionsaid.admin.web.business.repository.SecurityRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -10,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.stereotype.Component;

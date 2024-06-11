@@ -22,18 +22,22 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/private/user")
-public class UserController {
+@RequestMapping("/public")
+public class PublicController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
 
     @SysLog(value = "用户新增")
-    // @LionSaidAuth(value = {"admin", "user_post"})
     @SneakyThrows
-    @PostMapping()
-    public ResponseEntity post(HttpServletRequest request, @RequestBody @Valid UserDTO dto) {
+    @PostMapping("userRegister")
+    public ResponseEntity userRegister(HttpServletRequest request, @RequestBody @Valid UserDTO dto) {
         SysUser user = JSONObject.parseObject(JSON.toJSONString(dto), SysUser.class);
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setEnabled(true);
+        user.setCredentialsNonExpired(true);
+        user.setAuthorities("generalUser");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.saveAndFlush(user);
         return ResponseEntity.ok(ResponseResult.success(""));

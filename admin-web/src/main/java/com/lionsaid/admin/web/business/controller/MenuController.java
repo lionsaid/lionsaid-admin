@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/menu")
+@RequestMapping("/private/api/menu")
 public class MenuController {
     private final MenuService menuService;
 
