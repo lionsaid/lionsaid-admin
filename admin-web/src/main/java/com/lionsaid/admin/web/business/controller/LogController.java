@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
-
-import java.util.UUID;
 
 /**
  * @author sunwei
@@ -24,6 +21,7 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/private/log")
+@PreAuthorize("hasAnyAuthority('administration','logManage')")
 public class LogController {
     private final LogService logService;
 
@@ -32,31 +30,11 @@ public class LogController {
      * @param id
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('logGet','admin')")
+    @PreAuthorize("hasAnyAuthority('logGet')")
     @GetMapping("/{id}")
     @SysLog(value = "用户日志 查询日志")
-    public ResponseEntity<ResponseResult> get(ServerWebExchange exchange, @PathVariable UUID id) {
+    public ResponseEntity<ResponseResult> get(@PathVariable String id) {
         log.info("get {}", id);
         return ResponseEntity.ok(ResponseResult.success(logService.getReferenceById(id)));
     }
-
-//
-//    /**
-//     * @param findInfo
-//     * @param entity
-//     * @return
-//     */
-//    @PreAuthorize("hasAnyAuthority('log_get','administration')")
-//    @GetMapping("/findAll")
-//    public Mono findAll(ServerWebExchange exchange, FindInfo findInfo, Log entity) {
-//        return ResponseEntity.ok(ResponseResult.success(logService.getReferenceById(id)));
-//    }
-//
-//    @SysLog(value = "用户获取本人日志")
-//    @GetMapping("/getUserLog")
-//    public Mono<ApiResponse> userLogService(ServerWebExchange exchange, @RequestHeader String userId) {
-//        return null;
-//    }
-
-
 }

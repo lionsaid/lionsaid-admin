@@ -1,45 +1,42 @@
 package com.lionsaid.admin.web.business.model.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "sys_log")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysLog {
+@Entity
+@Table(name = "sys_organization")
+public class SysOrganization {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    @JdbcTypeCode(SqlTypes.UUID)
     private String id;
-    @Lob
-    private String result;
-    private String requestId;
-    private String path;
+    private String parentId;
     private String name;
-    private String method;
-    private String description;
-    @Lob
-    private String param;
+    private Integer status;
+    private Integer type;
     @CreatedBy
     private String createdBy;
-    @Lob
-    private String additionalInfo;
-    private LocalDateTime expiredDateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreatedDate
     private LocalDateTime createdDate;
-
+    @LastModifiedBy
+    private String lastModifiedBy;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
 
 }

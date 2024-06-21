@@ -44,7 +44,7 @@
 //		// @formatter:off
 //		return new RSAKey.Builder(publicKey)
 //				.privateKey(privateKey)
-//				.keyID(UUID.randomUUID().toString())
+//				.keyID(LionSaidIdGenerator.snowflakeId())
 //				.build();
 //		// @formatter:on
 //	}
@@ -57,7 +57,7 @@
 //		// @formatter:off
 //		return new ECKey.Builder(curve, publicKey)
 //				.privateKey(privateKey)
-//				.keyID(UUID.randomUUID().toString())
+//				.keyID(LionSaidIdGenerator.snowflakeId())
 //				.build();
 //		// @formatter:on
 //	}
@@ -66,7 +66,7 @@
 //		SecretKey secretKey = KeyGeneratorUtils.generateSecretKey();
 //		// @formatter:off
 //		return new OctetSequenceKey.Builder(secretKey)
-//				.keyID(UUID.randomUUID().toString())
+//				.keyID(LionSaidIdGenerator.snowflakeId())
 //				.build();
 //		// @formatter:on
 //	}

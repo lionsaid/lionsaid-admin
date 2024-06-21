@@ -11,10 +11,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MenuDTO {
+public class RoleDTO {
     private String id;
     private String name;
     private String authorities;
     private Integer status;
     private List<String> joinId;
+
 }

@@ -7,10 +7,8 @@ import com.lionsaid.admin.web.common.IServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @AllArgsConstructor
-public class LogServiceImpl extends IServiceImpl<SysLog, UUID, LogRepository> implements LogService {
+public class LogServiceImpl extends IServiceImpl<SysLog, String, LogRepository> implements LogService {
 
 }

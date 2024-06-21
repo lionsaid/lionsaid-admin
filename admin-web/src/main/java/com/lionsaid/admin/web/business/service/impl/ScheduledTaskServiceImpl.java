@@ -11,6 +11,7 @@ import com.lionsaid.admin.web.business.repository.ScheduledTaskRepository;
 import com.lionsaid.admin.web.business.service.ScheduledTaskLogService;
 import com.lionsaid.admin.web.business.service.ScheduledTaskService;
 import com.lionsaid.admin.web.common.IServiceImpl;
+import com.lionsaid.admin.web.utils.LionSaidIdGenerator;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 @Slf4j
@@ -127,7 +131,7 @@ public class ScheduledTaskServiceImpl extends IServiceImpl<ScheduledTask, String
 
     private void executeTask(ScheduledTask scheduledTask) {
         long start = System.currentTimeMillis();
-        ScheduledTaskLog scheduledTaskLog = ScheduledTaskLog.builder().id(UUID.randomUUID().toString()).taskId(scheduledTask.getId()).startDateTime(LocalDateTime.now()).status(0).build();
+        ScheduledTaskLog scheduledTaskLog = ScheduledTaskLog.builder().id(LionSaidIdGenerator.snowflakeId()).taskId(scheduledTask.getId()).startDateTime(LocalDateTime.now()).status(0).build();
         scheduledTaskLogService.saveAndFlush(scheduledTaskLog);
         scheduledTaskLog.setStatus(2);
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {

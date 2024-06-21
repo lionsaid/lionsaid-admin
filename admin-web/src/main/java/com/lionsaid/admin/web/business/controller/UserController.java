@@ -7,12 +7,15 @@ import com.lionsaid.admin.web.business.model.dto.UserDTO;
 import com.lionsaid.admin.web.business.model.po.SysUser;
 import com.lionsaid.admin.web.business.service.UserService;
 import com.lionsaid.admin.web.response.ResponseResult;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,15 +26,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/private/user")
+@Tag(name = "用户管理")
+@PreAuthorize("hasAnyAuthority('administration','userManage')")
 public class UserController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
 
-    @SysLog(value = "用户新增")
-    // @LionSaidAuth(value = {"admin", "user_post"})
+    @SysLog(value = "新增用户")
     @SneakyThrows
     @PostMapping()
+    @Operation(description = "新增用户", summary = "新增用户信息")
+    @PreAuthorize("hasAnyAuthority('userPost')")
     public ResponseEntity post(HttpServletRequest request, @RequestBody @Valid UserDTO dto) {
         SysUser user = JSONObject.parseObject(JSON.toJSONString(dto), SysUser.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

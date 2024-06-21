@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,9 @@ public class SecurityRepository implements SecurityContextRepository {
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         HttpServletRequest request = requestResponseHolder.getRequest();
         String authorization = request.getHeader("Authorization");
+        if (StringUtils.isEmpty(authorization)) {
+            return SecurityContextHolder.createEmptyContext();
+        }
         SecurityContext securityContext = JSON.parseObject(redisTemplate.opsForValue().get(authorization), SecurityContext.class);
         return securityContext != null ? securityContext : SecurityContextHolder.createEmptyContext();
     }
@@ -35,19 +39,27 @@ public class SecurityRepository implements SecurityContextRepository {
     @Override
     public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
         String authorization = request.getAttribute("Authorization").toString();
-        redisTemplate.opsForValue().set(authorization, JSON.toJSONString(context));
-        // 设置 Redis 键的过期时间，以确保不会永久保存安全上下文
-        redisTemplate.expire(authorization, 7, TimeUnit.DAYS);
+        if (StringUtils.isNotEmpty(authorization)){
+            redisTemplate.opsForValue().set(authorization, JSON.toJSONString(context));
+            // 设置 Redis 键的过期时间，以确保不会永久保存安全上下文
+            redisTemplate.expire(authorization, 7, TimeUnit.DAYS);
+        }
     }
 
     @Override
     public boolean containsContext(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-        return redisTemplate.hasKey(authorization);
+        if (StringUtils.isNotEmpty(authorization)){
+             redisTemplate.hasKey(authorization);
+        }
+        return true;
     }
 
     public boolean deleteContext(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-        return redisTemplate.delete(authorization);
+        if (StringUtils.isNotEmpty(authorization)){
+            redisTemplate.delete(authorization);
+        }
+        return true;
     }
 }

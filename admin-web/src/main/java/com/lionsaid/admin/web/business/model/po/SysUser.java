@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -62,24 +66,16 @@ public class SysUser implements UserDetails {
      * 用户类型（0管理员，1普通用户）
      */
     private Integer userType;
-    /**
-     * 创建人的用户id
-     */
-    private String createBy;
-    /**
-     * 创建时间
-     */
+    @CreatedBy
+    private String createdBy;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createTime;
-    /**
-     * 更新人
-     */
-    private String updateBy;
-    /**
-     * 更新时间
-     */
+    @CreatedDate
+    private LocalDateTime createdDate;
+    @LastModifiedBy
+    private String lastModifiedBy;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updateTime;
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
     private boolean isAccountNonExpired;
 
     /**

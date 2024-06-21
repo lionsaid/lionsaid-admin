@@ -2,9 +2,9 @@ package com.lionsaid.admin.web.config;
 
 import com.lionsaid.admin.web.business.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -20,13 +20,12 @@ import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import java.util.Arrays;
 
-
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
     private final UserService userService;
-    private final StringRedisTemplate redisTemplate;
     private final TokenFilter tokenFilter;
 
     @Bean
@@ -66,6 +65,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 }

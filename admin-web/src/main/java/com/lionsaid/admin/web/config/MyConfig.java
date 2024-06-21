@@ -1,5 +1,6 @@
 package com.lionsaid.admin.web.config;
 
+import com.lionsaid.admin.web.utils.LionSaidIdGenerator;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -26,7 +26,7 @@ public class MyConfig {
     public void checkFile() {
         File tempFile = null;
         try {
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), ".ttf");
+            tempFile = File.createTempFile(LionSaidIdGenerator.snowflakeId(), ".ttf");
             URL fontUrl = new URL("https://jbrainprod.xian-janssen.com.cn/files/font/microsoft_ya_hei.ttf");
             FileUtils.copyURLToFile(fontUrl, tempFile);
             try (InputStream is = new FileInputStream(tempFile)) {

@@ -2,10 +2,7 @@ package com.lionsaid.admin.web.business.model.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,24 +14,19 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
-@Table(name = "sys_menu", indexes = {})
-public class SysMenu {
+@Table(name = "sys_menu_join", indexes = {
+        @Index(name = "idx_sysmenujoin_menuid_joinid", columnList = "menuId, joinId")
+})
+public class SysMenuJoin {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private String id;
-    private String name;
-    private String tag;
-    private String groupId;
-    private String route;
-    private String routeType;
-    private String location;
-    private String description;
-    private String summary;
-    private Integer type;
-    private Integer sort;
-    private Integer status;
+    private String menuId;
+    private String joinId;
     @CreatedBy
     private String createdBy;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
