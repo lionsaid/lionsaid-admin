@@ -23,14 +23,12 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @AllArgsConstructor
@@ -79,6 +77,7 @@ public class AdminRunConfig {
         userService.saveAndFlush(user);
         String userId = user.getId().toString();
         SysRole sysRole = roleService.saveAndFlush(SysRole.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).name("系统管理员").build());
+        roleService.saveAndFlush(SysRole.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).name("普通用户").build());
         roleService.postRoleJoin(sysRole.getId(), Lists.newArrayList(userId));
         SysAuthorities sysAuthorities = authoritiesService.saveAndFlush(SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).authorities("administration").name("系统管理员").build());
         authoritiesService.postAuthoritiesJoin(sysAuthorities.getId(), Lists.newArrayList(sysRole.getId()));
@@ -93,33 +92,40 @@ public class AdminRunConfig {
         ArrayList<@Nullable SysAuthorities> list = Lists.newArrayList();
         Set<String> preAuthorizeValues = new HashSet<>();
         for (Object bean : beans.values()) {
+            List<String> list1 = Lists.newArrayList();
+            list1.add("administration");
             String groupId = LionSaidIdGenerator.snowflakeId();
             SysAuthorities sysAuthorities = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).groupId(groupId).sort(sort).build();
             // 获取实际类
             Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
             Tag tag = AnnotationUtils.findAnnotation(targetClass, Tag.class);
-            PreAuthorize preAuthorize = AnnotationUtils.findAnnotation(targetClass, PreAuthorize.class);
+            RequestMapping preAuthorize = AnnotationUtils.findAnnotation(targetClass, RequestMapping.class);
             if (preAuthorize != null) {
-                sysAuthorities.setAuthorities(preAuthorize.value().replaceAll("'", "").replaceAll("hasAnyAuthority\\(", "").replaceAll("\\)", "").replaceAll("administration,", ""));
+                list1.add(preAuthorize.name());
+                sysAuthorities.setAuthorities(preAuthorize.name());
             }
             if (tag != null) {
                 sysAuthorities.setName(tag.name());
                 sysAuthorities.setDescription(tag.description());
                 list.add(sysAuthorities);
-                sort++;
                 Method[] methods = targetClass.getMethods();
                 for (Method method : methods) {
-                    SysAuthorities sysAuthorities1 = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).groupId(groupId).sort(sort).build();
                     PreAuthorize preAuthorize1 = AnnotationUtils.findAnnotation(method, PreAuthorize.class);
                     Operation operation = AnnotationUtils.findAnnotation(method, Operation.class);
-                    if (operation != null) {
-                        sysAuthorities1.setName(operation.description());
-                        sysAuthorities1.setSummary(operation.summary());
-                        sysAuthorities1.setDescription(operation.description());
-                    }
                     if (preAuthorize1 != null) {
-                        sysAuthorities1.setAuthorities(preAuthorize1.value().replaceAll("'", "").replaceAll("hasAnyAuthority\\(", "").replaceAll("\\)", "").replaceAll("administration,", ""));
-                        list.add(sysAuthorities1);
+                        List<String> preAuthoriz = new ArrayList<>(Arrays.stream(preAuthorize1.value().replaceAll("hasAnyAuthority\\(", "").replaceAll("\\)", "").replaceAll("'", "").split(",")).toList());
+                        preAuthoriz.removeAll(list1);
+                        for (String preAuthoriz1 : preAuthoriz) {
+                            sort++;
+                            SysAuthorities sysAuthorities1 = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).groupId(groupId).sort(sort).build();
+                            if (operation != null) {
+                                sysAuthorities1.setName(operation.description());
+                                sysAuthorities1.setSummary(operation.summary());
+                                sysAuthorities1.setDescription(operation.description());
+                            }
+                            sysAuthorities1.setAuthorities(preAuthoriz1.trim());
+                            list.add(sysAuthorities1);
+                        }
                     }
                     sort++;
                 }

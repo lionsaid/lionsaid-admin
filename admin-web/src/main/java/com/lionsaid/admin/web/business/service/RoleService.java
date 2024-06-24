@@ -11,4 +11,5 @@ public interface RoleService extends IService<SysRole, String> {
     void deleteRoleJoin(List<String> id);
 
     List<SysRole> getRoleJoin(List<String> joinId);
+
 }

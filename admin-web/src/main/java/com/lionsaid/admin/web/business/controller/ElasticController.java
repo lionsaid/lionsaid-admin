@@ -35,7 +35,7 @@ public class ElasticController {
      * @return
      */
     @GetMapping("/{id}")
-    public ResponseEntity search(HttpServletRequest request, @PathVariable Long id) throws IOException {
+    public ResponseEntity search(@PathVariable Long id) throws IOException {
         String term = "hospital_name";
         String term1 = "hospital_type";
         String term2 = "hospital_level";

@@ -45,4 +45,6 @@ public class RoleServiceImpl extends IServiceImpl<SysRole, String, SysRoleReposi
     public List<SysRole> getRoleJoin(List<String> joinId) {
         return sysRoleJoinRepository.findByJoinId(joinId);
     }
+
+
 }

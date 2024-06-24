@@ -37,7 +37,7 @@ public class SecurityRepository implements SecurityContextRepository {
 
 
     @Override
-    public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
+    public void saveContext(SecurityContext context,HttpServletRequest request,  HttpServletResponse response) {
         String authorization = request.getAttribute("Authorization").toString();
         if (StringUtils.isNotEmpty(authorization)){
             redisTemplate.opsForValue().set(authorization, JSON.toJSONString(context));

@@ -22,7 +22,6 @@ public class SysLog {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    @JdbcTypeCode(SqlTypes.UUID)
     private String id;
     @Lob
     private String result;

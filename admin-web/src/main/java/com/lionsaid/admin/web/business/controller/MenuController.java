@@ -24,22 +24,21 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/private/api/menu")
+@RequestMapping(value = "/private/api/menu",name = "menuManage")
 @Tag(name = "菜单管理🎭")
-@PreAuthorize("hasAnyAuthority('administration','menuManage')")
 public class MenuController {
     private final MenuService menuService;
 
     @Operation(description = "查询菜单", summary = "通过id查询菜单信息")
-    @PreAuthorize("hasAnyAuthority('menuGet')")
+    @PreAuthorize("hasAnyAuthority('menuGet','administration','menuManage')")
     @GetMapping("/{id}")
-    public ResponseEntity get(HttpServletRequest request, @PathVariable String id) {
+    public ResponseEntity get(@PathVariable String id) {
         log.info("get {}", id);
         return ResponseEntity.ok(ResponseResult.success(menuService.getById(id)));
     }
 
     @Operation(description = "查询菜单", summary = "通过id查询菜单信息")
-    @PreAuthorize("hasAnyAuthority('menuGet')")
+    @PreAuthorize("hasAnyAuthority('menuGet','administration','menuManage')")
     @SysLog(value = "查询菜单")
     @GetMapping("/findAll")
     public ResponseEntity<ResponseResult> findAll(HttpServletRequest request) {
@@ -48,53 +47,53 @@ public class MenuController {
 
     @Operation(description = "更新菜单", summary = "更新菜单信息")
     @SysLog(value = "更新菜单")
-    @PreAuthorize("hasAnyAuthority('menuPut')")
+    @PreAuthorize("hasAnyAuthority('menuPut','administration','menuManage')")
     @PutMapping()
-    public ResponseEntity<ResponseResult> put(HttpServletRequest request, @RequestBody MenuDTO entity) {
+    public ResponseEntity<ResponseResult> put(@RequestBody MenuDTO entity) {
         SysMenu sysMenu = JSONObject.parseObject(JSON.toJSONString(entity), SysMenu.class);
         return ResponseEntity.ok(ResponseResult.success(menuService.saveAndFlush(sysMenu)));
     }
 
     @Operation(description = "新增菜单", summary = "新增菜单信息")
     @SysLog(value = "新增菜单")
-    @PreAuthorize("hasAnyAuthority('menuPost')")
+    @PreAuthorize("hasAnyAuthority('menuPost','administration','menuManage')")
     @PostMapping()
-    public ResponseEntity<ResponseResult> post(HttpServletRequest request, @RequestBody MenuDTO entity) {
+    public ResponseEntity<ResponseResult> post(@RequestBody MenuDTO entity) {
         SysMenu sysMenu = JSONObject.parseObject(JSON.toJSONString(entity), SysMenu.class);
         return ResponseEntity.ok(ResponseResult.success(menuService.saveAndFlush(sysMenu)));
     }
 
     @Operation(description = "删除菜单", summary = "删除菜单信息")
     @SysLog(value = "删除菜单")
-    @PreAuthorize("hasAnyAuthority('menuDelete')")
+    @PreAuthorize("hasAnyAuthority('menuDelete','administration','menuManage')")
     @DeleteMapping("")
-    public ResponseEntity<ResponseResult> delete(HttpServletRequest request, @RequestBody String id) {
+    public ResponseEntity<ResponseResult> delete(@RequestBody String id) {
         menuService.delete(id);
         return ResponseEntity.ok(ResponseResult.success(""));
     }
 
     @Operation(description = "获取用户菜单", summary = "获取用户菜单")
     @SysLog(value = "获取用户菜单")
-    @PreAuthorize("hasAnyAuthority('menuGet')")
+    @PreAuthorize("hasAnyAuthority('menuGet','administration','menuManage')")
     @GetMapping("/getUserMenu")
-    public ResponseEntity<ResponseResult> userMenuService(HttpServletRequest request, @RequestHeader String userId) {
+    public ResponseEntity<ResponseResult> userMenuService(@RequestHeader String userId) {
         return ResponseEntity.ok(ResponseResult.success(menuService.getUserMenu(userId)));
     }
 
     @Operation(description = "删除菜单关系", summary = "删除菜单关系")
     @SysLog(value = "删除菜单关系")
-    @PreAuthorize("hasAnyAuthority('menuDelete')")
+    @PreAuthorize("hasAnyAuthority('menuDelete','administration','menuManage')")
     @DeleteMapping("/deleteMenuJoin")
-    public ResponseEntity<ResponseResult> deleteMenuJoin(HttpServletRequest request, @RequestBody List<String> ids) {
+    public ResponseEntity<ResponseResult> deleteMenuJoin(@RequestBody List<String> ids) {
         menuService.deleteMenuJoin(ids);
         return ResponseEntity.ok(ResponseResult.success(""));
     }
 
     @Operation(description = "新增菜单关系", summary = "新增菜单关系")
     @SysLog(value = "新增菜单关系")
-    @PreAuthorize("hasAnyAuthority('menuPost')")
+    @PreAuthorize("hasAnyAuthority('menuPost','administration','menuManage')")
     @PostMapping("/postMenuJoin")
-    public ResponseEntity<ResponseResult> postMenuJoin(HttpServletRequest request, @RequestBody MenuDTO entity) {
+    public ResponseEntity<ResponseResult> postMenuJoin(@RequestBody MenuDTO entity) {
         menuService.postMenuJoin(entity.getId(), entity.getJoinId());
         return ResponseEntity.ok(ResponseResult.success(""));
     }

@@ -6,8 +6,12 @@ import com.google.common.collect.Lists;
 import com.lionsaid.admin.web.annotation.SysLog;
 import com.lionsaid.admin.web.business.model.dto.UserDTO;
 import com.lionsaid.admin.web.business.model.dto.UserLoginDTO;
+import com.lionsaid.admin.web.business.model.po.SysSetting;
 import com.lionsaid.admin.web.business.model.po.SysUser;
 import com.lionsaid.admin.web.business.repository.SecurityRepository;
+import com.lionsaid.admin.web.business.repository.SysRoleRepository;
+import com.lionsaid.admin.web.business.repository.SysSettingRepository;
+import com.lionsaid.admin.web.business.service.RoleService;
 import com.lionsaid.admin.web.business.service.UserService;
 import com.lionsaid.admin.web.exception.LionSaidException;
 import com.lionsaid.admin.web.response.ResponseResult;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,11 +48,13 @@ public class PublicController {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final SecurityRepository securityRepository;
+    private final SysSettingRepository sysSettingRepository;
+    private final RoleService roleService;
 
     @SysLog(value = "用户注册")
     @SneakyThrows
     @PostMapping("userRegister")
-    public ResponseEntity userRegister(HttpServletRequest request, @RequestBody @Valid UserDTO dto) {
+    public ResponseEntity userRegister(@RequestBody @Valid UserDTO dto) {
         SysUser user = JSONObject.parseObject(JSON.toJSONString(dto), SysUser.class);
         user.setAccountNonExpired(true);
         user.setAccountNonLocked(true);
@@ -55,7 +62,9 @@ public class PublicController {
         user.setCredentialsNonExpired(true);
         user.setAuthorities(Lists.newArrayList("vip1", "generalUser").stream().collect(Collectors.joining(",")));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userService.saveAndFlush(user);
+        SysUser sysUser = userService.saveAndFlush(user);
+        Optional<SysSetting> sysSetting = sysSettingRepository.findBySettingKey("generalUser");
+        sysSetting.ifPresent(o -> roleService.postRoleJoin(o.getSettingValue(), Lists.newArrayList(sysUser.getId().toString())));
         return ResponseEntity.ok(ResponseResult.success(""));
     }
 

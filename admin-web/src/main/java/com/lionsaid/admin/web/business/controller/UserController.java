@@ -25,9 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/private/user")
+@RequestMapping(value = "/private/user",name  ="userManage")
 @Tag(name = "用户管理")
-@PreAuthorize("hasAnyAuthority('administration','userManage')")
 public class UserController {
 
     private final PasswordEncoder passwordEncoder;
@@ -37,8 +36,8 @@ public class UserController {
     @SneakyThrows
     @PostMapping()
     @Operation(description = "新增用户", summary = "新增用户信息")
-    @PreAuthorize("hasAnyAuthority('userPost')")
-    public ResponseEntity post(HttpServletRequest request, @RequestBody @Valid UserDTO dto) {
+    @PreAuthorize("hasAnyAuthority('userPost','administration','userManage')")
+    public ResponseEntity post( @RequestBody @Valid UserDTO dto) {
         SysUser user = JSONObject.parseObject(JSON.toJSONString(dto), SysUser.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.saveAndFlush(user);
