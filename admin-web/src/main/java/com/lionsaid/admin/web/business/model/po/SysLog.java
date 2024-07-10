@@ -1,12 +1,11 @@
 package com.lionsaid.admin.web.business.model.po;
 
+import com.lionsaid.admin.web.common.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysLog {
+public class SysLog  extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
@@ -32,13 +31,7 @@ public class SysLog {
     private String description;
     @Lob
     private String param;
-    @CreatedBy
-    private String createdBy;
     @Lob
     private String additionalInfo;
     private LocalDateTime expiredDateTime;
-    @CreatedDate
-    private LocalDateTime createdDate;
-
-
 }

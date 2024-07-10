@@ -1,6 +1,7 @@
 package com.lionsaid.admin.web.business.model.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lionsaid.admin.web.common.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,7 @@ import java.util.Collection;
 @Table(name = "sys_user", indexes = {
         @Index(name = "idx_user_username_unq", columnList = "username", unique = true)
 })
-public class SysUser implements UserDetails {
+public class SysUser  extends Auditable  implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
     @SequenceGenerator(name = "id_generator", sequenceName = "user_id_generator", allocationSize = 1, initialValue = 100000)
@@ -66,16 +67,6 @@ public class SysUser implements UserDetails {
      * 用户类型（0管理员，1普通用户）
      */
     private Integer userType;
-    @CreatedBy
-    private String createdBy;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @CreatedDate
-    private LocalDateTime createdDate;
-    @LastModifiedBy
-    private String lastModifiedBy;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
     private boolean isAccountNonExpired;
 
     /**

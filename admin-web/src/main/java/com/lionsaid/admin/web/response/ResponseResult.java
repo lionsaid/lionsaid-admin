@@ -11,16 +11,19 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseResult  {
+public class ResponseResult {
     String message;
+    String error;
+    String path;
     int apiVersion;
-    int code;
+    int status;
     Object content;
     Boolean success;
     LocalDateTime timestamp;
 
     public static ResponseResult success(Object t) {
         return ResponseResult.builder()
+                .status(200)
                 .success(true)
                 .apiVersion(1)
                 .message("ok")
@@ -32,6 +35,7 @@ public class ResponseResult  {
 
     public static ResponseResult success(Object t, String message) {
         return ResponseResult.builder()
+                .status(200)
                 .success(true)
                 .apiVersion(1)
                 .message(message)
@@ -44,7 +48,7 @@ public class ResponseResult  {
         return ResponseResult.builder()
                 .success(false)
                 .apiVersion(1)
-                .message(message)
+                .error(message)
                 .timestamp(LocalDateTime.now())
                 .content("").build();
     }

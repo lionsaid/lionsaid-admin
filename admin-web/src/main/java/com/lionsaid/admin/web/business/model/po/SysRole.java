@@ -1,6 +1,7 @@
 package com.lionsaid.admin.web.business.model.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lionsaid.admin.web.common.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,22 +20,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "sys_role")
-public class SysRole {
+public class SysRole  extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private String id;
     private String name;
     private Integer status;
-    @CreatedBy
-    private String createdBy;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @CreatedDate
-    private LocalDateTime createdDate;
-    @LastModifiedBy
-    private String lastModifiedBy;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
-
 }

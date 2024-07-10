@@ -14,8 +14,8 @@ import java.util.Locale;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LionSaidException extends Exception {
-    private int    code;
+public class LionSaidException extends RuntimeException {
+    private int code;
     private Locale locale;
 
     public LionSaidException(String message, int code) {

@@ -10,6 +10,7 @@ import com.lionsaid.admin.web.exception.LionSaidException;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -27,15 +28,15 @@ public class UserServiceImpl extends IServiceImpl<SysUser, Long, UserRepository>
     private SysAuthoritiesJoinRepository sysAuthoritiesJoinRepository;
 
     @Override
-    @SneakyThrows
-    public SysUser loadUserByUsername(String username) {
+    public SysUser loadUserByUsername(String username) throws RuntimeException {
         //根据用户名查询用户信息
         Optional<SysUser> optionalUser = userRepository.findByUsername(username);
         //如果查询不到数据就通过抛出异常来给出提示
         if (optionalUser.isEmpty()) {
-            throw new LionSaidException("用户名或密码错误", 4000001);
+            return null;
         }
         SysUser sysUser = optionalUser.get();
+
         List<String> joinList = Lists.newArrayList();
         joinList.add(sysUser.getId().toString());
         HashSet<@Nullable String> authoritiesSet = Sets.newHashSet();

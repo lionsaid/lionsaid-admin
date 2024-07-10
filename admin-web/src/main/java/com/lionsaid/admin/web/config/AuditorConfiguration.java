@@ -5,6 +5,7 @@ import com.lionsaid.admin.web.business.repository.SecurityRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -28,21 +29,17 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuditorConfiguration implements AuditorAware<String> {
 
-    private final SecurityRepository securityRepository;
 
     @Override
     public Optional<String> getCurrentAuditor() {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
             HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-            String authorization = request.getHeader("authorization");
-            if (StringUtils.isEmpty(authorization)) {
-                authorization = request.getHeader("Authorization");
+            Object userId = request.getAttribute("userId");
+            if (ObjectUtils.anyNull(userId)) {
+                return Optional.of("anonymous");
             }
-            if (StringUtils.isNotEmpty(authorization)) {
-                SecurityContext deferredSecurityContext = securityRepository.loadContext(new HttpRequestResponseHolder(request, null));
-                return Optional.of(deferredSecurityContext.getAuthentication().getName());
-            }
+            return Optional.of(userId.toString());
         } catch (Exception e) {
             log.error("AuditorConfiguration -> getCurrentAuditor: [{}]", e.getMessage());
         }

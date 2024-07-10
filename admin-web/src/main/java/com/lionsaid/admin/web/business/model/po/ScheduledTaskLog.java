@@ -1,5 +1,6 @@
 package com.lionsaid.admin.web.business.model.po;
 
+import com.lionsaid.admin.web.common.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "scheduled_task_log")
-public class ScheduledTaskLog {
+public class ScheduledTaskLog  extends Auditable {
     @Id
     @Column(name = "id", nullable = false)
     private String id;

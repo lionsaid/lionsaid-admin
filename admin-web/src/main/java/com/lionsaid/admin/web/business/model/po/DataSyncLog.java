@@ -1,5 +1,6 @@
 package com.lionsaid.admin.web.business.model.po;
 
+import com.lionsaid.admin.web.common.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "data_sync_log")
-public class DataSyncLog {
+public class DataSyncLog  extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID )
     @Column(name = "id", nullable = false)

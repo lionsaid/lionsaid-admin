@@ -1,5 +1,6 @@
 package com.lionsaid.admin.web.business.model.po;
 
+import com.lionsaid.admin.web.common.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "data_sync_job_filter")
-public class DataSyncJobFilter {
+public class DataSyncJobFilter  extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
     @SequenceGenerator(name = "id_generator", sequenceName = "data_sync_sequence_name", allocationSize = 1, initialValue = 100000)

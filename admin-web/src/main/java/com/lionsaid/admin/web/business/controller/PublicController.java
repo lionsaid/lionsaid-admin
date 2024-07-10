@@ -9,7 +9,6 @@ import com.lionsaid.admin.web.business.model.dto.UserLoginDTO;
 import com.lionsaid.admin.web.business.model.po.SysSetting;
 import com.lionsaid.admin.web.business.model.po.SysUser;
 import com.lionsaid.admin.web.business.repository.SecurityRepository;
-import com.lionsaid.admin.web.business.repository.SysRoleRepository;
 import com.lionsaid.admin.web.business.repository.SysSettingRepository;
 import com.lionsaid.admin.web.business.service.RoleService;
 import com.lionsaid.admin.web.business.service.UserService;
@@ -22,6 +21,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -73,13 +73,17 @@ public class PublicController {
     @SneakyThrows
     @PostMapping("/login/password")
     public ResponseEntity password(HttpServletRequest request, HttpServletResponse response, @RequestBody @NotNull @Valid UserLoginDTO dto) {
+        request.getLocale().getLanguage();
         SysUser userDetails = userService.loadUserByUsername(dto.getUsername());
+        if (ObjectUtils.anyNull(userDetails)) {
+            throw new LionSaidException("用户名或密码错误", 4000001, request.getLocale());
+        }
         if (passwordEncoder.matches(dto.getPassword(), userDetails.getPassword())) {
             Base64.Encoder encoder = Base64.getEncoder();
             String prefix = "USER" + userDetails.getId() + "AUTH";
             String token = encoder.encodeToString((prefix + LionSaidIdGenerator.snowflakeId()).getBytes(StandardCharsets.UTF_8));
             Authentication authenticationRequest =
-                    UsernamePasswordAuthenticationToken.authenticated(dto.getUsername(), dto.getPassword(), userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken.authenticated(userDetails.getId(), dto.getUsername(), userDetails.getAuthorities());
             request.setAttribute("Authorization", token);
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authenticationRequest);
@@ -87,7 +91,7 @@ public class PublicController {
             log.error("authenticationResponse {}", authenticationRequest);
             return ResponseEntity.ok(ResponseResult.success(token));
         } else {
-            throw new LionSaidException("用户名或密码错误", 4000001);
+            throw new LionSaidException("用户名或密码错误", 4000001, request.getLocale());
         }
     }
 

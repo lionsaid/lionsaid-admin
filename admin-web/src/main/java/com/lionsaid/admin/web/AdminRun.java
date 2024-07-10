@@ -9,10 +9,11 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
 @AllArgsConstructor
 @EnableScheduling
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
+@SpringBootApplication(scanBasePackages = "com.lionsaid.admin.web")
+
 public class AdminRun {
 
     private  final  AuditorConfiguration auditorConfiguration;

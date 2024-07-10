@@ -76,10 +76,10 @@ public class AdminRunConfig {
         user.setLastModifiedDate(now);
         userService.saveAndFlush(user);
         String userId = user.getId().toString();
-        SysRole sysRole = roleService.saveAndFlush(SysRole.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).name("系统管理员").build());
-        roleService.saveAndFlush(SysRole.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).name("普通用户").build());
+        SysRole sysRole = roleService.saveAndFlush(SysRole.builder().id(LionSaidIdGenerator.snowflakeId()).name("系统管理员").build());
+        roleService.saveAndFlush(SysRole.builder().id(LionSaidIdGenerator.snowflakeId()).name("普通用户").build());
         roleService.postRoleJoin(sysRole.getId(), Lists.newArrayList(userId));
-        SysAuthorities sysAuthorities = authoritiesService.saveAndFlush(SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).authorities("administration").name("系统管理员").build());
+        SysAuthorities sysAuthorities = authoritiesService.saveAndFlush(SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).authorities("administration").name("系统管理员").build());
         authoritiesService.postAuthoritiesJoin(sysAuthorities.getId(), Lists.newArrayList(sysRole.getId()));
         return userId;
     }
@@ -95,7 +95,7 @@ public class AdminRunConfig {
             List<String> list1 = Lists.newArrayList();
             list1.add("administration");
             String groupId = LionSaidIdGenerator.snowflakeId();
-            SysAuthorities sysAuthorities = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).groupId(groupId).sort(sort).build();
+            SysAuthorities sysAuthorities = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).groupId(groupId).sort(sort).build();
             // 获取实际类
             Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
             Tag tag = AnnotationUtils.findAnnotation(targetClass, Tag.class);
@@ -117,7 +117,7 @@ public class AdminRunConfig {
                         preAuthoriz.removeAll(list1);
                         for (String preAuthoriz1 : preAuthoriz) {
                             sort++;
-                            SysAuthorities sysAuthorities1 = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).createdBy(userId).lastModifiedBy(userId).createdDate(now).lastModifiedDate(now).groupId(groupId).sort(sort).build();
+                            SysAuthorities sysAuthorities1 = SysAuthorities.builder().id(LionSaidIdGenerator.snowflakeId()).groupId(groupId).sort(sort).build();
                             if (operation != null) {
                                 sysAuthorities1.setName(operation.description());
                                 sysAuthorities1.setSummary(operation.summary());
