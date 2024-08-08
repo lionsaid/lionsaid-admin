@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "sys_organization_join", indexes = {
-        @Index(name = "idx_sysrolejoin_roleid_joinid", columnList = "organizationId, joinId")
+        @Index(name = "idx_sysorganizationjoin", columnList = "organizationId, joinId")
 })
 public class SysOrganizationJoin  extends Auditable {
     @Id

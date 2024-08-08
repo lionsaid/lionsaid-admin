@@ -26,13 +26,9 @@ import java.util.Collection;
 @Table(name = "sys_user", indexes = {
         @Index(name = "idx_user_username_unq", columnList = "username", unique = true)
 })
-public class SysUser  extends Auditable  implements UserDetails {
+public class SysUser extends Auditable implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_generator")
-    @SequenceGenerator(name = "id_generator", sequenceName = "user_id_generator", allocationSize = 1, initialValue = 100000)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+    private String id;
     /**
      * 用户名
      */
@@ -67,6 +63,8 @@ public class SysUser  extends Auditable  implements UserDetails {
      * 用户类型（0管理员，1普通用户）
      */
     private Integer userType;
+    private String verificationCode;
+    private LocalDateTime VerificationCodeExpiryDate;
     private boolean isAccountNonExpired;
 
     /**

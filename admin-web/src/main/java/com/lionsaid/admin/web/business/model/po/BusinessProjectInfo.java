@@ -29,12 +29,10 @@ public class BusinessProjectInfo extends Auditable {
     private String tag;
     private String route;
     private String routeType;
-    private String location;
     private String icon;
     private String backgroundImage;
     private String description;
     private String summary;
-    private String authorities;
     private Integer type;
     private Integer sort;
     private Integer star;

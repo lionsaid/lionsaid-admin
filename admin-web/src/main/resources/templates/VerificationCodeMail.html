@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<table class="wid"
+       style="width:537px; background-color: #FFF; margin:auto; border-top: 1px solid #d2d2d2; border-right: 1px solid #d2d2d2; border-left: 1px solid #d2d2d2; border-bottom: 1px solid #d2d2d2;">
+    <tbody>
+    <tr>
+        <td
+                style="float:right; margin-right:10px; padding-top:50px; padding-bottom:28px; padding-right:50px;"
+                class="logo-box">
+            <img th:src="${logoUrl}" width="60px"
+                 height="60px" style=" float:right;" class="img-container">
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align:left;padding-right: 50px; padding-left: 50px; padding-bottom: 48px;"
+            class="text-container">
+            <span style="font-size: 13px; color: #333; font-family: Helvetica,Helvetica Neue; ">
+                <p style="padding-bottom: 4px;">您好:</p>
+
+ <p style="padding-bottom: 4px;">您正在获取 LionSiad 狮子说 验证码。您的邮件验证码为:</p>
+                <p style="padding-bottom: 6px;"
+                   th:text="${code}"></p>
+                <p style="padding-bottom: 4px;">该验证码将在30分钟后过期</p>
+<p style="padding-bottom: 4px;">如果非您本人操作,请忽略该邮件。</p>
+                <p style="padding-bottom: 4px;">本邮件由系统自动生成。请勿回复此邮件。 </p>
+                <p style="padding-bottom: 4px;">
+                    <span>谢谢！</span><br>
+                    <span>LionSiad 狮语 团队支持</span>
+                </p>
+            </span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

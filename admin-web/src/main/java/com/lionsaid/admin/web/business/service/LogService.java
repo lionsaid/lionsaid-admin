@@ -4,4 +4,6 @@ import com.lionsaid.admin.web.business.model.po.SysLog;
 import com.lionsaid.admin.web.common.IService;
 
 public interface LogService extends IService<SysLog, String> {
+    void updateExecutionSecondsById(Long executionSeconds, String id);
+
 }

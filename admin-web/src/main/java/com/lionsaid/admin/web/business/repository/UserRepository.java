@@ -6,9 +6,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<SysUser, Long> {
+public interface UserRepository extends JpaRepository<SysUser, String> {
+    @Transactional
+    @Modifying
+    @Query("update SysUser s set s.verificationCode = ?1 where s.email = ?2")
+    void updateVerificationCodeByEmail(String verificationCode, String email);
+
     @Transactional
     @Modifying
     @Query("update SysUser u set u.password = ?1 where u.username = ?2 or u.email = ?3")
@@ -26,6 +32,8 @@ public interface UserRepository extends JpaRepository<SysUser, Long> {
 
     @Transactional
     @Modifying
-    @Query("update SysUser u set u.emailVerify = ?1 where u.email = ?2")
-    void updateEmailVerifyByEmail(Integer emailVerify, String email);
+    @Query("update SysUser s set s.verificationCode = ?1, s.VerificationCodeExpiryDate = ?2 where s.username = ?3")
+    int updateVerificationCodeAndVerificationCodeExpiryDateByUsername(String verificationCode, LocalDateTime VerificationCodeExpiryDate, String username);
+
+
 }

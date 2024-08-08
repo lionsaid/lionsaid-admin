@@ -1,6 +1,7 @@
 package com.lionsaid.admin.web.config;
 
 import com.lionsaid.admin.web.business.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -31,21 +33,31 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/**").permitAll() // 登录请求放行
+                .authorizeRequests(authorize -> authorize
+                        .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/private/**").authenticated()
                 )
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(AbstractHttpConfigurer::disable)
-                .headers(h -> h.addHeaderWriter(new StaticHeadersWriter(Arrays.asList(
-                        new Header("Access-control-Allow-Origin", "*"),
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.addHeaderWriter(new StaticHeadersWriter(Arrays.asList(
+                        new Header("Access-Control-Allow-Origin", "*"),
                         new Header("Access-Control-Expose-Headers", "Authorization")
                 ))))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .authenticationManager(authenticationManager());
+                .authenticationManager(authenticationManager())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            log.error("Unauthorized error: {}", authException.getMessage());
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            log.error("Forbidden error: {}", accessDeniedException.getMessage());
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+                        })
+                );
+
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -53,10 +65,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
-
-
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
-
         return providerManager;
     }
 

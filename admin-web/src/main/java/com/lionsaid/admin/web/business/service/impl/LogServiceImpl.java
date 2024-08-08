@@ -11,4 +11,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class LogServiceImpl extends IServiceImpl<SysLog, String, LogRepository> implements LogService {
 
+    @Override
+    public void updateExecutionSecondsById(Long executionSeconds, String id) {
+        repository.updateExecutionSecondsById(executionSeconds, id);
+    }
 }

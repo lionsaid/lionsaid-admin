@@ -7,6 +7,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.core.annotation.Order;
@@ -28,6 +29,8 @@ public class LogAspect {
         SysLog log = SysLog.builder().description(sysLog.value()).id(LionSaidIdGenerator.snowflakeId())
                 .expiredDateTime(LocalDateTime.now().plusDays(sysLog.expired())).build();
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        request.setAttribute("logId", log.getId());
+        request.setAttribute("beforeTime", System.currentTimeMillis() / 1000);
         log.setRequestId(request.getRequestId());
         log.setPath(request.getRequestURI());
         log.setMethod(request.getMethod());
@@ -41,6 +44,12 @@ public class LogAspect {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @After("@annotation(sysLog)")
+    public void logAfterRequest(com.lionsaid.admin.web.annotation.SysLog sysLog) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        logService.updateExecutionSecondsById(System.currentTimeMillis() / 1000 - Long.valueOf(request.getAttribute("beforeTime").toString()), request.getAttribute("logId").toString());
     }
 
 }

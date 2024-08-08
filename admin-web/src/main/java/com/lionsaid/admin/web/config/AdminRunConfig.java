@@ -63,8 +63,8 @@ public class AdminRunConfig {
 
     private String initUser() {
         LocalDateTime now = LocalDateTime.now();
-        String username = RandomStringUtils.randomAscii(6);
-        String pass = RandomStringUtils.randomAscii(10);
+        String username = "lionsaid";
+        String pass = "lionsaid@!@#$";
         System.out.println("初始化管理员 username :" + username + ";  password :" + pass);
         SysUser user = SysUser.builder().username(username).build();
         user.setAccountNonExpired(true);

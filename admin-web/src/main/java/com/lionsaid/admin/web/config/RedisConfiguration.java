@@ -70,6 +70,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
         cacheNames.add("my-redis-cache2-hours");
         cacheNames.add("my-redis-cache3-hours");
         cacheNames.add("my-redis-cache5-minutes");
+        cacheNames.add("my-redis-cache1-day");
 
 
         // 对每个缓存空间应用不同的配置
@@ -78,6 +79,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
         configMap.put("my-redis-cache2-hours", config.entryTtl(Duration.ofHours(2)).disableCachingNullValues());
         configMap.put("my-redis-cache3-hours", config.entryTtl(Duration.ofHours(3)).disableCachingNullValues());
         configMap.put("my-redis-cache5-minutes", config.entryTtl(Duration.ofMinutes(5)).disableCachingNullValues());
+        configMap.put("my-redis-cache1-day", config.entryTtl(Duration.ofDays(1)).disableCachingNullValues());
 
         RedisCacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory)     // 使用自定义的缓存配置初始化一个cacheManager
                 .initialCacheNames(cacheNames)  // 注意这两句的调用顺序，一定要先调用该方法设置初始化的缓存名，再初始化相关的配置

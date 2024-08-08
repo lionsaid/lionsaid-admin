@@ -12,10 +12,6 @@ public interface IService<T, ID> {
 
     <S extends T> List<S> saveAllAndFlush(Iterable<S> entities);
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
     default void deleteInBatch(Iterable<T> entities) {
         this.deleteAllInBatch(entities);
     }
@@ -26,16 +22,12 @@ public interface IService<T, ID> {
 
     void deleteAllInBatch();
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
     T getOne(ID id);
 
     /**
      * @deprecated
      */
-    @Deprecated
+
     T getById(ID id);
 
     T getReferenceById(ID id);

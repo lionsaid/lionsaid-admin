@@ -32,14 +32,40 @@ public final class LionSaidHttpUtils {
     public static void main(String[] args) {
         log.error("{}", "gg");
         ArrayList<@Nullable String> list = Lists.newArrayList();
+        // list.add("CSG2404573");
+        list.add("DSG2407441");
+        list.add("DSS2400151");
+        list.add("GSS2400159");
+        list.add("HEG2407505");
+        list.add("HEG2407511");
+        list.add("HEG2407583");
+        list.add("HES2400454");
+        list.add("HES2400464");
+        list.add("MAO2200002");
+        list.add("MAO2200003");
+        list.add("MAO2200007");
+        list.add("MAO2200008");
+        list.add("MAO2200010");
+        list.add("MAO2200014");
+        list.add("MAO2300014");
+        list.add("MAO2300018");
+        list.add("MAO2300019");
+        list.add("MAO2300020");
+        list.add("MAO2300021");
+        list.add("MAO2300022");
+        list.add("MAO2300023");
+        list.add("MAO2300024");
+        list.add("MAO2300025");
+        list.add("MAO2300026");
+        list.add("MAO2300027");
+        list.add("MAO2300028");
+        list.add("MAO2400001");
+        list.add("MAO2400002");
+        list.add("MAO2400009");
+        list.add("MAO2400015");
 
-        list.add("GSG2402208");
-
-
-
-
-
-        list.forEach(o->repairMeeting(o));
+        list.forEach(o -> initMeetingSignQR(o));
+        list.forEach(o -> initMeetingPoster(o));
 
     }
 
@@ -149,8 +175,44 @@ public final class LionSaidHttpUtils {
 
                     .build();
             Request request = new Request.Builder()
+                    .url("https://jbrainprod-gateway.myxjp.com/API-XJP/pharmbrain/meeting/repairMeeting?meetingNo=" + args + "&sourceName=ams")
+                    .addHeader("authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHTUx3MWUxSGo4VVZkY0gtNVJPeDdUdld1T01vT1N2cURESU5pQ3MxbG9FIn0.eyJleHAiOjE3MjE4OTU1NjIsImlhdCI6MTcxOTMwMzU2MiwianRpIjoiMmQ4YWZkZTktZGFkMy00OTI3LTlhMTMtMzBmYmMzYmFhNzE1IiwiaXNzIjoiaHR0cHM6Ly9qYnJhaW5wcm9kLm15eGpwLmNvbS9hdXRoL3JlYWxtcy9TVEVQIiwic3ViIjoiYjM4NzBjNDItOTQwNS00NjQ0LWEzNTItZWQ2ZDY5ODZiZDg5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicHVibGljLWxvZ2luLWNsaWVudCIsInNlc3Npb25fc3RhdGUiOiI5OGU1ZjdjOC02NTMxLTQ0YWYtODM1Mi0yNzM2ZjdkMTQ0YTQiLCJzY29wZSI6InByb2ZpbGUiLCJzaWQiOiI5OGU1ZjdjOC02NTMxLTQ0YWYtODM1Mi0yNzM2ZjdkMTQ0YTQiLCJuYW1lIjoiamNyZHRlc3QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiI3MDI0MDg2NTgiLCJnaXZlbl9uYW1lIjoiamNyZHRlc3QifQ.aLAeKYYAn96nK9_E3Ya43HOtYo1BsKElNQL5l7z-SA5qE6EfO__zqqbutX_7A4tgL-n0u5YZgK-Y_HNwM73z_x1tH9DiMdeK8wgzmlnYKrwP6H3TUGjl_VH2wWAIp-aqVKG5NiCqWeUlhGsjM1fqrQBuTbejb7SokUMABLGEnkoGsDs57etgxG92BFxy9mJe3426Kk36MdSjBfDM6jWq4woUG-4i-1dYxgfYgVSSn2uuUuwUOWJJswsDsJtWgxfep4x2ZYZ8S0iRzheDQX7i7bKBBsROr_Qjp3nOHyyd17rLWpMfckq9jSY14Xji9F74K6sElFqypyzGFQvEq2--Iw")
+                    .get().build();
+            Response response = client.newCall(request).execute();
+            log.info("====== {} {} {}", args, response.sentRequestAtMillis(), response.isSuccessful());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    } @SneakyThrows
+    public static void initMeetingPoster(String args) {
+        try {
+            OkHttpClient client = new OkHttpClient.Builder()
+
+                    .build();
+            Request request = new Request.Builder()
                     .url("https://jbrainprod-gateway.myxjp.com/API-XJP/pharmbrain/meeting/initMeetingPoster?meetingNo=" + args + "&sourceName=ams")
-                    .addHeader("authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHTUx3MWUxSGo4VVZkY0gtNVJPeDdUdld1T01vT1N2cURESU5pQ3MxbG9FIn0.eyJleHAiOjE3MjAzMjg5MTIsImlhdCI6MTcxNzczNjkxMiwianRpIjoiMGZiYTIyNjEtYjZlOC00ODA3LWFmNDctZTAwNGIxODc1MTM1IiwiaXNzIjoiaHR0cHM6Ly9qYnJhaW5wcm9kLm15eGpwLmNvbS9hdXRoL3JlYWxtcy9TVEVQIiwic3ViIjoiZTZmY2QzOWMtYTEyYy00YjM4LWE2YjEtNjZlMjFiZmViNmMwIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicHVibGljLWxvZ2luLWNsaWVudCIsInNlc3Npb25fc3RhdGUiOiI2YjBkZTI1ZS1mMWQwLTQwMzEtYWUzNi0xYTJiOWMyYWEwMGUiLCJzY29wZSI6InByb2ZpbGUiLCJzaWQiOiI2YjBkZTI1ZS1mMWQwLTQwMzEtYWUzNi0xYTJiOWMyYWEwMGUiLCJuYW1lIjoi5ZGo55CoIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiNzAyNDI0NDAyIiwiZ2l2ZW5fbmFtZSI6IuWRqOeQqCJ9.UktXk5BRNWSrCYqJKADPGxS-jA3FuL2EI6RRb6S2JebiSuR0cpam_7z_z4Fy78-vyuswTylI1ChLdbdYytvVnTqCuKiX-mmdcjsa6qJ3BVUlz58Qi3u5eR18BwMVzaVaC_ln3fA7bwt4Qo4QdfzpR9xP260rithGTutjHTf1G7hFD4AuJOtARCeOk83EMD_8Yv-cLEYnfee51rl6bouEf3tQZqNu3beQhVpFZu3JX33OR2jEUaXYxXx2eiI1NmmpIoYs56hI_N4VKapWVxR6-X982XNKeJdAf3lwZ54mmLCLqKAHWD62f2ASQFcgCL63IPayIwhQ8fCcCL6r-i3nRw")
+                    .addHeader("authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHTUx3MWUxSGo4VVZkY0gtNVJPeDdUdld1T01vT1N2cURESU5pQ3MxbG9FIn0.eyJleHAiOjE3MjE4OTU1NjIsImlhdCI6MTcxOTMwMzU2MiwianRpIjoiMmQ4YWZkZTktZGFkMy00OTI3LTlhMTMtMzBmYmMzYmFhNzE1IiwiaXNzIjoiaHR0cHM6Ly9qYnJhaW5wcm9kLm15eGpwLmNvbS9hdXRoL3JlYWxtcy9TVEVQIiwic3ViIjoiYjM4NzBjNDItOTQwNS00NjQ0LWEzNTItZWQ2ZDY5ODZiZDg5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicHVibGljLWxvZ2luLWNsaWVudCIsInNlc3Npb25fc3RhdGUiOiI5OGU1ZjdjOC02NTMxLTQ0YWYtODM1Mi0yNzM2ZjdkMTQ0YTQiLCJzY29wZSI6InByb2ZpbGUiLCJzaWQiOiI5OGU1ZjdjOC02NTMxLTQ0YWYtODM1Mi0yNzM2ZjdkMTQ0YTQiLCJuYW1lIjoiamNyZHRlc3QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiI3MDI0MDg2NTgiLCJnaXZlbl9uYW1lIjoiamNyZHRlc3QifQ.aLAeKYYAn96nK9_E3Ya43HOtYo1BsKElNQL5l7z-SA5qE6EfO__zqqbutX_7A4tgL-n0u5YZgK-Y_HNwM73z_x1tH9DiMdeK8wgzmlnYKrwP6H3TUGjl_VH2wWAIp-aqVKG5NiCqWeUlhGsjM1fqrQBuTbejb7SokUMABLGEnkoGsDs57etgxG92BFxy9mJe3426Kk36MdSjBfDM6jWq4woUG-4i-1dYxgfYgVSSn2uuUuwUOWJJswsDsJtWgxfep4x2ZYZ8S0iRzheDQX7i7bKBBsROr_Qjp3nOHyyd17rLWpMfckq9jSY14Xji9F74K6sElFqypyzGFQvEq2--Iw")
+                    .get().build();
+            Response response = client.newCall(request).execute();
+            log.info("====== {} {} {}", args, response.sentRequestAtMillis(), response.isSuccessful());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @SneakyThrows
+    public static void initMeetingSignQR(String args) {
+        try {
+            OkHttpClient client = new OkHttpClient.Builder()
+
+                    .build();
+            Request request = new Request.Builder()
+                    .url("https://jbrainprod-gateway.myxjp.com/API-XJP/pharmbrain/meeting/initMeetingSignQR?meetingNo=" + args + "&sourceName=ams")
+                    .addHeader("authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJHTUx3MWUxSGo4VVZkY0gtNVJPeDdUdld1T01vT1N2cURESU5pQ3MxbG9FIn0.eyJleHAiOjE3MjE4OTU1NjIsImlhdCI6MTcxOTMwMzU2MiwianRpIjoiMmQ4YWZkZTktZGFkMy00OTI3LTlhMTMtMzBmYmMzYmFhNzE1IiwiaXNzIjoiaHR0cHM6Ly9qYnJhaW5wcm9kLm15eGpwLmNvbS9hdXRoL3JlYWxtcy9TVEVQIiwic3ViIjoiYjM4NzBjNDItOTQwNS00NjQ0LWEzNTItZWQ2ZDY5ODZiZDg5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicHVibGljLWxvZ2luLWNsaWVudCIsInNlc3Npb25fc3RhdGUiOiI5OGU1ZjdjOC02NTMxLTQ0YWYtODM1Mi0yNzM2ZjdkMTQ0YTQiLCJzY29wZSI6InByb2ZpbGUiLCJzaWQiOiI5OGU1ZjdjOC02NTMxLTQ0YWYtODM1Mi0yNzM2ZjdkMTQ0YTQiLCJuYW1lIjoiamNyZHRlc3QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiI3MDI0MDg2NTgiLCJnaXZlbl9uYW1lIjoiamNyZHRlc3QifQ.aLAeKYYAn96nK9_E3Ya43HOtYo1BsKElNQL5l7z-SA5qE6EfO__zqqbutX_7A4tgL-n0u5YZgK-Y_HNwM73z_x1tH9DiMdeK8wgzmlnYKrwP6H3TUGjl_VH2wWAIp-aqVKG5NiCqWeUlhGsjM1fqrQBuTbejb7SokUMABLGEnkoGsDs57etgxG92BFxy9mJe3426Kk36MdSjBfDM6jWq4woUG-4i-1dYxgfYgVSSn2uuUuwUOWJJswsDsJtWgxfep4x2ZYZ8S0iRzheDQX7i7bKBBsROr_Qjp3nOHyyd17rLWpMfckq9jSY14Xji9F74K6sElFqypyzGFQvEq2--Iw")
                     .get().build();
             Response response = client.newCall(request).execute();
             log.info("====== {} {} {}", args, response.sentRequestAtMillis(), response.isSuccessful());

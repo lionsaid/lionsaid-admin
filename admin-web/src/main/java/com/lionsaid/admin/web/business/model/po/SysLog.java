@@ -17,10 +17,8 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysLog  extends Auditable {
+public class SysLog extends Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false)
     private String id;
     @Lob
     private String result;
@@ -28,6 +26,7 @@ public class SysLog  extends Auditable {
     private String path;
     private String name;
     private String method;
+    private Long executionSeconds;
     private String description;
     @Lob
     private String param;

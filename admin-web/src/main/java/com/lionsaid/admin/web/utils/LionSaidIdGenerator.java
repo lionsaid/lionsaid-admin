@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.UUID;
 
 @Slf4j
@@ -25,7 +26,6 @@ public final class LionSaidIdGenerator {
 
     public static String snowflakeId() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + DATACENTER_ID + MACHINE_ID + RandomStringUtils.randomNumeric(10);
-
     }
 
 
