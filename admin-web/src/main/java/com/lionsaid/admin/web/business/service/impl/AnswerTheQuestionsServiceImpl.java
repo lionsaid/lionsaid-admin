@@ -1,14 +1,10 @@
 package com.lionsaid.admin.web.business.service.impl;
 
 import com.lionsaid.admin.web.business.model.po.BusinessQuestionInfo;
-import com.lionsaid.admin.web.business.model.po.SysDict;
 import com.lionsaid.admin.web.business.repository.BusinessQuestionInfoRepository;
-import com.lionsaid.admin.web.business.repository.SysDictRepository;
 import com.lionsaid.admin.web.business.service.AnswerTheQuestionsService;
-import com.lionsaid.admin.web.business.service.DictService;
 import com.lionsaid.admin.web.common.IServiceImpl;
 import lombok.AllArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

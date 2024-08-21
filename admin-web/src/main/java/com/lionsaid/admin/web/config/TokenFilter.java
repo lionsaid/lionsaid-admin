@@ -1,7 +1,6 @@
 package com.lionsaid.admin.web.config;
 
 import com.lionsaid.admin.web.business.repository.SecurityRepository;
-import com.lionsaid.admin.web.exception.LionSaidException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -8,20 +8,25 @@ import com.lionsaid.admin.web.business.model.dto.UserDTO;
 import com.lionsaid.admin.web.business.model.dto.UserLoginDTO;
 import com.lionsaid.admin.web.business.model.po.SysSetting;
 import com.lionsaid.admin.web.business.model.po.SysUser;
+import com.lionsaid.admin.web.business.model.po.SysUserDeviceInfo;
 import com.lionsaid.admin.web.business.repository.SecurityRepository;
 import com.lionsaid.admin.web.business.repository.SysSettingRepository;
 import com.lionsaid.admin.web.business.service.MailService;
+import com.lionsaid.admin.web.business.service.MenuService;
 import com.lionsaid.admin.web.business.service.RoleService;
 import com.lionsaid.admin.web.business.service.UserService;
+import com.lionsaid.admin.web.enums.CommonVariables;
 import com.lionsaid.admin.web.exception.LionSaidException;
 import com.lionsaid.admin.web.response.ResponseResult;
 import com.lionsaid.admin.web.utils.LionSaidIdGenerator;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,16 +38,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,7 @@ public class PublicController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final MenuService menuService;
     private final SecurityRepository securityRepository;
     private final SysSettingRepository sysSettingRepository;
     private final RoleService roleService;
@@ -103,6 +106,7 @@ public class PublicController {
         }
         if (passwordEncoder.matches(dto.getPassword(), userDetails.getPassword()) || (StringUtils.equalsIgnoreCase(userDetails.getVerificationCode(), dto.getPassword()) && LocalDateTime.now().isBefore(userDetails.getVerificationCodeExpiryDate()))) {
             HashSet<@Nullable String> authorities = userService.getUserAuthorities(userDetails.getId());
+            authorities.add(CommonVariables.loginUser);
             userDetails.setAuthorities(String.join(",", authorities));
             Base64.Encoder encoder = Base64.getEncoder();
             String prefix = "USER" + userDetails.getId() + "AUTH";
@@ -131,4 +135,32 @@ public class PublicController {
         return ResponseEntity.ok(ResponseResult.success("登出成功"));
 
     }
+
+    @SysLog(value = "保存用户登录设备信息")
+    @SneakyThrows
+    @PostMapping("/saveUserDeviceInfo")
+    @Operation(description = "新增用户设备信息", summary = "新增用户设备信息")
+    public ResponseEntity saveUserDeviceInfo(@RequestAttribute String userId, HttpServletRequest request) {
+        String jsonString = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+        if (StringUtils.isNotEmpty(jsonString)) {
+            JSONObject parseObject = JSONObject.parseObject(jsonString);
+            SysUserDeviceInfo userDeviceInfo = SysUserDeviceInfo.builder()
+                    .id(userId + parseObject.getString("deviceId"))
+                    .deviceInfo(parseObject.getString("deviceInfo"))
+                    .targetPlatform(parseObject.getString("targetPlatform"))
+                    .deviceId(parseObject.getString("deviceId")).build();
+            userService.saveUserDeviceInfo(userDeviceInfo);
+        }
+        return ResponseEntity.ok(ResponseResult.success(""));
+    }
+
+    @SysLog(value = "获取用户菜单")
+    @SneakyThrows
+    @GetMapping("/getUserMenu")
+    @Operation(description = "获取用户菜单", summary = "获取用户菜单")
+    public ResponseEntity<ResponseResult> getUserMenu(@RequestAttribute String authorities) {
+        log.debug("getUserMenu {}", authorities);
+        return ResponseEntity.ok(ResponseResult.success(menuService.getUserMenu(Arrays.stream(authorities.split(",")).toList())));
+    }
+
 }

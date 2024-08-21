@@ -46,7 +46,6 @@ public class UserServiceImpl extends IServiceImpl<SysUser, String, UserRepositor
         List<String> joinList = Lists.newArrayList();
         joinList.add(userId);
         HashSet<@Nullable String> authoritiesSet = Sets.newHashSet();
-        authoritiesSet.add(CommonVariables.loginUser);
         sysOrganizationJoinRepository.findByJoinId(joinList).forEach(o -> joinList.add(o.getId()));
         sysRoleJoinRepository.findByJoinId(joinList).forEach(o -> joinList.add(o.getId()));
         sysMenuJoinRepository.findByJoinId(joinList).forEach(o -> joinList.add(o.getId()));
@@ -54,6 +53,7 @@ public class UserServiceImpl extends IServiceImpl<SysUser, String, UserRepositor
         authoritiesSet.addAll(joinList);
         return authoritiesSet;
     }
+
 
     @Override
     public SysUser saveAndFlush(SysUser sysUser) {

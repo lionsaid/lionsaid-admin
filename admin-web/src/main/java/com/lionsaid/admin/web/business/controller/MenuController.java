@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -76,8 +77,8 @@ public class MenuController {
     @SysLog(value = "获取用户菜单")
     @PreAuthorize("hasAnyAuthority('menuGet','administration','menuManage')")
     @GetMapping("/getUserMenu")
-    public ResponseEntity<ResponseResult> userMenuService(@RequestHeader String userId) {
-        return ResponseEntity.ok(ResponseResult.success(menuService.getUserMenu(userId)));
+    public ResponseEntity<ResponseResult> userMenuService(@RequestAttribute String authorities) {
+        return ResponseEntity.ok(ResponseResult.success(menuService.getUserMenu(Arrays.stream(authorities.split(",")).toList())));
     }
 
     @Operation(description = "删除菜单关系", summary = "删除菜单关系")

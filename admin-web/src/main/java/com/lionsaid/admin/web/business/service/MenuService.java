@@ -1,5 +1,6 @@
 package com.lionsaid.admin.web.business.service;
 
+import com.lionsaid.admin.web.business.model.dto.SysMenuDto;
 import com.lionsaid.admin.web.business.model.po.SysMenu;
 import com.lionsaid.admin.web.common.IService;
 
@@ -11,9 +12,8 @@ public interface MenuService extends IService<SysMenu, String> {
 
     void deleteMenuJoin(List<String> id);
 
-    List<SysMenu> getMenuJoin(List<String> joinId);
 
-    Object getUserMenu(String userId);
+    List<SysMenuDto> getUserMenu(List<String> userId);
 
     void delete(String id);
 }

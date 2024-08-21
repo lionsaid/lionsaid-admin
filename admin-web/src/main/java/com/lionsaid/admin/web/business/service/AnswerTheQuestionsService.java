@@ -1,6 +1,5 @@
 package com.lionsaid.admin.web.business.service;
 
-import com.lionsaid.admin.web.business.model.po.BusinessProjectInfo;
 import com.lionsaid.admin.web.business.model.po.BusinessQuestionInfo;
 import com.lionsaid.admin.web.common.IService;
 
