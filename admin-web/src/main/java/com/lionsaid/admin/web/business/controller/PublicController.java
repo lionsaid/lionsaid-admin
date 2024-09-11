@@ -10,6 +10,7 @@ import com.lionsaid.admin.web.business.model.po.SysSetting;
 import com.lionsaid.admin.web.business.model.po.SysUser;
 import com.lionsaid.admin.web.business.model.po.SysUserDeviceInfo;
 import com.lionsaid.admin.web.business.repository.SecurityRepository;
+import com.lionsaid.admin.web.business.repository.SysMailLogRepository;
 import com.lionsaid.admin.web.business.repository.SysSettingRepository;
 import com.lionsaid.admin.web.business.service.MailService;
 import com.lionsaid.admin.web.business.service.MenuService;
@@ -41,6 +42,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
@@ -59,17 +61,32 @@ public class PublicController {
     private final MenuService menuService;
     private final SecurityRepository securityRepository;
     private final SysSettingRepository sysSettingRepository;
+    private final SysMailLogRepository sysMailLogRepository;
     private final RoleService roleService;
     private final MailService mailService;
 
-    @SysLog(value = "用户注册")
+    @SysLog(value = "获取验证码")
     @SneakyThrows
-    @PostMapping("generateEmailVerificationCode")
-    public ResponseEntity generateEmailVerificationCode(HttpServletRequest request, @RequestBody @Valid UserLoginDTO dto) {
-        String code = RandomStringUtils.randomNumeric(6);
-        mailService.sendVerificationCodeMail(dto.getUsername(), code);
-        userService.updateVerificationCodeByEmail(code, dto.getUsername());
-        return ResponseEntity.ok(ResponseResult.success(""));
+    @PostMapping("generateVerificationCode")
+    public ResponseEntity generateVerificationCode(HttpServletRequest request, @RequestBody @Valid UserLoginDTO dto) {
+        SysUser sysUser = userService.loadUserByUsername(dto.getUsername());
+        if (sysMailLogRepository.countByToAndTypeAndCreatedDate(dto.getUsername(), "", LocalDate.now()) > 3) {
+            throw new LionSaidException(dto.getUsername() + "验证码发送已达最大次数", 4000002, request.getLocale());
+        }
+        if (ObjectUtils.anyNotNull(sysUser)) {
+            String code = RandomStringUtils.randomNumeric(6);
+            mailService.sendVerificationCodeMail(dto.getUsername(), code);
+            userService.updateVerificationCodeByEmail(code, dto.getUsername());
+            return ResponseEntity.ok(ResponseResult.success(""));
+        }
+        throw new LionSaidException(dto.getUsername() + "用户未注册", 4000002, request.getLocale());
+    }
+
+
+    @SneakyThrows
+    @GetMapping("getQueryString")
+    public ResponseEntity getQueryString(HttpServletRequest request) {
+        return ResponseEntity.ok(ResponseResult.success(request.getQueryString()));
     }
 
 
@@ -88,6 +105,10 @@ public class PublicController {
         user.setCredentialsNonExpired(true);
         user.setAuthorities(Lists.newArrayList("vip1", "generalUser").stream().collect(Collectors.joining(",")));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getUsername().contains("@")) {
+            user.setEmail(user.getUsername());
+            user.setEmailVerify(0);
+        }
         SysUser sysUser = userService.saveAndFlush(user);
         Optional<SysSetting> sysSetting = sysSettingRepository.findBySettingKey("generalUser");
         sysSetting.ifPresent(o -> roleService.postRoleJoin(o.getSettingValue(), Lists.newArrayList(sysUser.getId().toString())));
@@ -141,7 +162,7 @@ public class PublicController {
     @PostMapping("/saveUserDeviceInfo")
     @Operation(description = "新增用户设备信息", summary = "新增用户设备信息")
     public ResponseEntity saveUserDeviceInfo(@RequestAttribute String userId, HttpServletRequest request) {
-        String jsonString = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+        String jsonString = IOUtils.toString(request.getInputStream());
         if (StringUtils.isNotEmpty(jsonString)) {
             JSONObject parseObject = JSONObject.parseObject(jsonString);
             SysUserDeviceInfo userDeviceInfo = SysUserDeviceInfo.builder()

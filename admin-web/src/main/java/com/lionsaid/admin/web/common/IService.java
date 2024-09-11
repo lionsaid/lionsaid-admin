@@ -1,6 +1,8 @@
 package com.lionsaid.admin.web.common;
 
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -33,6 +35,8 @@ public interface IService<T, ID> {
     T getReferenceById(ID id);
 
     <S extends T> List<S> findAll(Example<S> example);
+
+    <S extends T> Page<S> findAll(Example<S> example, Pageable pageable);
 
     <S extends T> List<S> findAll(Example<S> example, Sort sort);
 }

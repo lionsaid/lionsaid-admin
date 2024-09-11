@@ -1,5 +1,6 @@
 package com.lionsaid.admin.web.business.model.dto;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
