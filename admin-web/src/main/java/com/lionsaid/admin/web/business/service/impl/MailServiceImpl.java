@@ -63,7 +63,7 @@ public class MailServiceImpl implements MailService {
         String mailContent = templateEngine.process("VerificationCodeMail.html", ctx);
         sendHtmlMail(mailTo, "LionSiad 狮语·验证码", mailContent);
         sysMailLogRepository.save(SysMailLog.builder()
-                .to(mailTo)
+                .toAddress(mailTo)
                 .type("VerificationCodeMail")
                 .localDate(LocalDate.now())
                 .mailMessage(mailContent)

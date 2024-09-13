@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 
 public interface SysMailLogRepository extends JpaRepository<SysMailLog, String> {
-    @Query("select count(s) from SysMailLog s where s.to = ?1 and s.type = ?2 and s.localDate =  ?3")
+    @Query("select count(s) from SysMailLog s where s.toAddress = ?1 and s.type = ?2 and s.localDate =  ?3")
     long countByToAndTypeAndCreatedDate(String to, String type, LocalDate createdDate);
 }

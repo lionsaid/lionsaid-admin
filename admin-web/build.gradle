@@ -25,7 +25,13 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.1")
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // 排除 Tomcat
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    }
+    // 添加 Undertow
+    implementation 'org.springframework.boot:spring-boot-starter-undertow'
+
     implementation 'org.springframework.boot:spring-boot-actuator'
     implementation 'org.springframework.boot:spring-boot-actuator-autoconfigure'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

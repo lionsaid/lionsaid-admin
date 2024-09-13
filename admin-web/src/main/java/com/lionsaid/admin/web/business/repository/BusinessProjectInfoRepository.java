@@ -16,7 +16,6 @@ public interface BusinessProjectInfoRepository extends JpaRepository<BusinessPro
             select distinct b
             from BusinessProjectInfo b 
             left join BusinessProjectInfoJoin c on b.id = c.projectId 
-            left join BusinessProjectInfoStar d on b.id = d.projectId and d.joinId = :#{#param.userId}
             where 
             (c.joinId in :#{#param.authorities} or b.createdBy = :#{#param.userId})
             """)
