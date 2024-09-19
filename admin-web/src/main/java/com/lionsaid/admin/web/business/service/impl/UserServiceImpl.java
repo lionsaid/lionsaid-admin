@@ -7,7 +7,6 @@ import com.lionsaid.admin.web.business.model.po.SysUserDeviceInfo;
 import com.lionsaid.admin.web.business.repository.*;
 import com.lionsaid.admin.web.business.service.UserService;
 import com.lionsaid.admin.web.common.IServiceImpl;
-import com.lionsaid.admin.web.enums.CommonVariables;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;

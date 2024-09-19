@@ -11,6 +11,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,25 +37,38 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/private/**").authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
+                //启用 HTTP 严格传输安全 (HSTS)
+                //强制客户端只能通过 HTTPS 连接服务器，防止中间人攻击：
+                .headers(headers -> headers
+                       // .httpStrictTransportSecurity(i -> i.includeSubDomains(true).maxAgeInSeconds(31536000))
+                        // 添加 XSS 和 Clickjacking 防护
+                        //启用 Spring Security 自带的 X-Content-Type-Options、X-XSS-Protection 和 X-Frame-Options 来防止 XSS 和点击劫持攻击：
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                        .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable)
+                        .xssProtection(HeadersConfigurer.XXssConfig::disable)
+                        .addHeaderWriter(new StaticHeadersWriter(Arrays.asList(
+                                new Header("Access-Control-Allow-Origin", "*"),
+                                new Header("Access-Control-Expose-Headers", "Authorization")
+                        )))
+                )
+                //当会话策略设置为 STATELESS 时，Spring Security 不会在服务器端创建或使用 HTTP 会话（HttpSession）来保存任何用户信息或身份验证状态。
+                //这意味着应用程序完全依赖于每个请求所携带的身份验证信息（如 JWT 令牌或 API 密钥）来验证用户身份。服务器不会在内存或存储中维护会话状态。
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.addHeaderWriter(new StaticHeadersWriter(Arrays.asList(
-                        new Header("Access-Control-Allow-Origin", "*"),
-                        new Header("Access-Control-Expose-Headers", "Authorization")
-                ))))
+                .csrf(csrf -> csrf.disable())
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationManager(authenticationManager())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) -> {
                             log.error("Unauthorized error: {}", authException.getMessage());
+                            log.debug("Request Details: Method={}, URI={}", request.getMethod(), request.getRequestURI());
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             log.error("Forbidden error: {}", accessDeniedException.getMessage());
+                            log.debug("Request Details: Method={}, URI={}", request.getMethod(), request.getRequestURI());
                             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
                         })
                 );
-
         return http.build();
     }
 

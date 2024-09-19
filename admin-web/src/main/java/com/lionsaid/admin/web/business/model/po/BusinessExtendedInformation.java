@@ -23,4 +23,5 @@ public class BusinessExtendedInformation extends Auditable {
     private String name;
     private String content;
     private String contentType;
+    private int status;
 }

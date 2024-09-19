@@ -4,7 +4,6 @@ import com.lionsaid.admin.web.business.model.po.SysMailLog;
 import com.lionsaid.admin.web.business.repository.SysMailLogRepository;
 import com.lionsaid.admin.web.business.service.COSService;
 import com.lionsaid.admin.web.business.service.MailService;
-import com.lionsaid.admin.web.exception.LionSaidException;
 import com.lionsaid.admin.web.utils.LionSaidIdGenerator;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,6 @@ import org.thymeleaf.context.Context;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor

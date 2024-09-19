@@ -1,7 +1,6 @@
 package com.lionsaid.admin.web.business.repository;
 
 import com.lionsaid.admin.web.business.model.dto.SysMenuDto;
-import com.lionsaid.admin.web.business.model.po.SysMenu;
 import com.lionsaid.admin.web.business.model.po.SysMenuJoin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

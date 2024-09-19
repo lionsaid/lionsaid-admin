@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
 import com.lionsaid.admin.web.annotation.SysLog;
 import com.lionsaid.admin.web.business.model.dto.BusinessCardInfoDto;
-import com.lionsaid.admin.web.business.model.dto.SearchDTO;
 import com.lionsaid.admin.web.business.model.po.BusinessCardInfo;
 import com.lionsaid.admin.web.business.service.BusinessCardInfoService;
 import com.lionsaid.admin.web.business.service.BusinessExtendedInformationService;
@@ -13,10 +12,8 @@ import com.lionsaid.admin.web.business.service.COSService;
 import com.lionsaid.admin.web.response.ResponseResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -77,7 +74,7 @@ public class BusinessCardController {
 
     @Operation(description = "新增Card", summary = "新增Card信息")
     @SysLog(value = "新增Card")
-    @PreAuthorize("hasAnyAuthority('businessCardPost','administration','businessCardManage')")
+    // @PreAuthorize("hasAnyAuthority('businessCardPost','administration','businessCardManage')")
     @PostMapping()
     public ResponseEntity<ResponseResult> post(@RequestBody BusinessCardInfoDto entity) {
         BusinessCardInfo sysbusinessCard = JSONObject.parseObject(JSON.toJSONString(entity), BusinessCardInfo.class);

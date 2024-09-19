@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface BusinessExtendedInformationRepository extends JpaRepository<BusinessExtendedInformation, String> {
-    @Query("select b.name,b.id,b.joinId,b.content,b.contentType from BusinessExtendedInformation b where b.joinId in ?1")
+    @Query("select b.name AS name,b.id AS id ,b.joinId AS joinId,b.content AS content,b.contentType AS contentType from BusinessExtendedInformation b where b.status=1 and b.joinId in ?1")
     List<JSONObject> findByJoinId(List<String> joinId);
 }

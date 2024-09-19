@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface BusinessCardInfoRepository extends JpaRepository<BusinessCardInfo, String> {
-    @Query("select b from BusinessCardInfo b where b.type = ?1")
+    @Query("select b from BusinessCardInfo b where b.type = ?1 order by  b.sort desc")
     Page<BusinessCardInfo> findByType(String type, Pageable pageable);
 }
